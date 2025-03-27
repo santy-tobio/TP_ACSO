@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <assert.h>
 #include <string.h>
-#include <sim.h>
-#include <shell.h>
+#include "sim.h"
+#include "shell.h"
 
 // '0000 0000 0000 0000  0000 0000 0000 0000'
 
