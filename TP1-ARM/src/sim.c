@@ -3,51 +3,241 @@
 #include <string.h>
 #include "sim.h"
 #include "shell.h"
+#include "execute.h"
 
-// Acemos shifts por largos de opcode 
+// hacemos shifts por largos de opcode
+// muy similar la decodificación de adds a la de subs
+// ADDS y SUBS tienen mal el bit 21, debería ser 0 en vez de 1
+// load en pagina 637
 
-#define ADDS_INMEDIATE_OPCODE 0b10110001 // 8 bits
-#define ADDS_EXTENDED_REGISTER_OPCODE 0b10101011001 // 11 bits
+// ADDS (1) CORREGIR!!!! PÁGINA 530
+
+#define ADDS_INMEDIATE_OPCODE 0xB1 // 8 bits
+#define ADDS_EXTENDED_REGISTER_OPCODE 0x559 // 11 bits
+
+// SUBS (2) CORREGIR !!!! PÁGINA 934
+
+#define SUBS_EXTENDED_REGISTER_OPCODE 0x3D9 // 11 bits
+#define SUBS_INMEDIATE_OPCODE 0xF1 // 8 bits
+
+// HALT (3)
+
+#define HALT_OPCODE 0x6a2 // 11 bits
+
+// CPM (4) PÁGINA 589
+
+#define CPM_EXTENDED_REGISTER_OPCODE 0x759 // 11 bits
+#define CPM_INMEDIATE_OPCODE 0xF1 // 8 bits
+
+// ANDS (5) PÁGINA 542
+
+#define ANDS_SHIFTED_REGISTER_OPCODE 0xE // 4 bits
+
+// EOR (6) PÁGINA 620
+
+#define EOR_SHIFTED_REGISTER_OPCODE 0xCA // 8 bits
+
+// ORR (7) PÁGINA 792
+
+#define ORR_SHIFTED_REGISTER_OPCODE 0xA // 4 bits
+
+// B (8) PÁGINA 550
+
+#define B_OPCODE 0x5 // 4 bits
+
+// BR (9) página 562
+
+#define BR_OPCODE 0x3587C0 // 22 bits
+
+// BEQ (10) página 549
+
+#define BEQ_OPCODE 0x54 // 8 bits
+
+// BEQ (10)  -- 0000
+// BNE (11)  -- 0001
+// BGT (12)  -- 1100
+// BLT (13)  -- 1011
+// BGE (14)  -- 1010
+// BLE (15)  -- 1101
 
 
-// Máscaras de bits
+// =================================
+// LSL (16) página 754
+#define LSL_OPCODE 0x34D // 10 bits
 
-#define EIGHT_BITS_MASK 0b11111111
-#define ELEVEN_BITS_MASK 0b11111111111
+// LSR (17) página 757
+#define LSR_OPCODE 0x34D // 10 bits
+// =================================
 
-uint32_t get_bit_section(uint32_t instruction, char start, char end);
+// STUR (18) página 917
+#define STUR_OPCODE 0x7C0 // 11 bits
 
-void process_instruction() {
-    // Obtener la instrucción en la dirección PC
-    uint32_t instruction = mem_read_32(CURRENT_STATE.PC);
+// STURB (19) página 918
+#define STURB_OPCODE 0x1C0 // 11 bits opcode start 21
+
+// STURH (20) página 919
+#define STURH_OPCODE 0x3C0 // 11 bits opcode start 21
+
+// LDUR (21) página 739
+#define LDUR_OPCODE 0x7C2 // 11 bits
+
+// LDURH (22) página 742
+#define LDURH_OPCODE 0x3C2 // 11 bits opcode start 21
+
+// LDURB  (23) página 741
+#define LDURB_OPCODE 0x1C2 // 11 bits opcode start 21
+
+// MOVZ (24) página 770
+#define MOVZ_OPCODE 0x1A5 // 9 bits
+
+// ADD (inmediate) (25) página 525
+#define ADD_INMEDIATE_OPCODE 0x91 // 8 bits
+
+// ADD (extended register) (26) página 523
+#define ADD_EXTENDED_REGISTER_OPCODE 0x459 // 11 bits
+
+// MUL (27) página 778
+#define MUL_OPCODE 0x4D8 // 11 bits
+
+// CBZ (28) página 574
+#define CBZ_OPCODE 0xB4 // 8 bits
+
+// CBNZ (29) página 573
+#define CBNZ_OPCODE 0xB5 // 8 bits
 
 
-    // A MODO DE TEST ---------
-    uint32_t opcode = get_bit_section(instruction, 21, 31);
-    
-    printf("Opcode: %x\n", opcode);
-
-    RUN_BIT = 0;
-    // ------------------------
-
-    
-    // Avanzar PC
-    NEXT_STATE.PC = CURRENT_STATE.PC + 4;
-}
-
-
-uint32_t get_bit_section(uint32_t instruction, char start, char end)
-{
+uint32_t extract_bits(uint32_t instruction, int start, int end) {
+    // 'start' y 'end' son inclusivos, con 0 siendo el bit menos significativo
+    // shiftea 'start' bits a la derecha y luego aplicar una máscara de 'end - start + 1' bits
     if (start > end || start < 0 || end > 31) { //! Tirar error
         return 0;
     }
 
-    return (instruction << (31 - end)) >> (31 - end + start);
+    uint32_t mask = (1 << (end - start + 1)) - 1;
+    return (instruction >> start) & mask;
 }
 
-// void decode_instruction()
-// {
+void process_instruction() {
+    
+    uint32_t instruction = mem_read_32(CURRENT_STATE.PC);
 
-// }
+    uint32_t opcode4 = extract_bits(instruction, 28, 31); // Opcode de 4 bits (bits 28-31)
+    uint32_t opcode8 = extract_bits(instruction, 24, 31); // Opcode de 8 bits (bits 24-31)
+    uint32_t opcode9 = extract_bits(instruction, 23, 31);  // Opcode de 9 bits (bits 23-31)
+    uint32_t opcode10 = extract_bits(instruction, 22, 31); // Opcode de 10 bits (bits 22-31)
+    uint32_t opcode11 = extract_bits(instruction, 21, 31); // Opcode de 11 bits (bits 21-31)
+    uint32_t opcode22 = extract_bits(instruction, 10, 31); // Opcode de 22 bits (bits 10-31)
+    
+    if (opcode11 == HALT_OPCODE) {
+        RUN_BIT = 0;
+        return;
+    }
+
+    // Verificarmos opcodes de 4 bits
+    switch (opcode4) {
+        case ANDS_SHIFTED_REGISTER_OPCODE:
+            execute_ands_shifted_register(instruction);
+            return;
+        case ORR_SHIFTED_REGISTER_OPCODE:
+            execute_orr_shifted_register(instruction);
+            return;
+        case B_OPCODE:
+            execute_b(instruction);
+            return;
+    }
+    
+    // Verificarmos opcodes de 8 bits
+    switch (opcode8) {
+        case ADDS_INMEDIATE_OPCODE:
+            execute_adds_immediate(instruction);
+            return;
+        case SUBS_INMEDIATE_OPCODE:
+            execute_subs_immediate(instruction);
+            return;
+        case EOR_SHIFTED_REGISTER_OPCODE:
+            execute_eor_shifted_register(instruction);
+            return;
+        case BEQ_OPCODE:
+            execute_bcond(instruction);
+            return;
+        case CBZ_OPCODE:
+            execute_cbz(instruction);
+            return;
+        case CBNZ_OPCODE:
+            execute_cbnz(instruction);
+            return;
+        case ADD_INMEDIATE_OPCODE:
+            execute_add_immediate(instruction);
+            return;
+    }
+    
+    // Verificarmos opcodes de 9 bits
+    switch (opcode9) {
+        case MOVZ_OPCODE:
+            execute_movz(instruction);
+            return;
+    }
+    
+    // Verificrmos opcodes de 10 bits
+    switch (opcode10) {
+        case LSL_OPCODE:
+            // Diferenciar entre LSL y LSR mediante el bit 21
+            if ((instruction >> 21) & 1) {
+                execute_lsr(instruction);
+            } else {
+                execute_lsl(instruction);
+            }
+            return;
+    }
+    
+    // Verificamos opcodes de 11 bits
+    switch (opcode11) {
+        case ADDS_EXTENDED_REGISTER_OPCODE:
+            execute_adds_extended_register(instruction);
+            return;
+        case SUBS_EXTENDED_REGISTER_OPCODE:
+            execute_subs_extended_register(instruction);
+            return;
+        case CPM_EXTENDED_REGISTER_OPCODE:
+            execute_cmp_extended_register(instruction);
+            return;
+        case STUR_OPCODE:
+            execute_stur(instruction);
+            return;
+        case STURB_OPCODE:
+            execute_sturb(instruction);
+            return;
+        case STURH_OPCODE:
+            execute_sturh(instruction);
+            return;
+        case LDUR_OPCODE:
+            execute_ldur(instruction);
+            return;
+        case LDURH_OPCODE:
+            execute_ldurh(instruction);
+            return;
+        case LDURB_OPCODE:
+            execute_ldurb(instruction);
+            return;
+        case ADD_EXTENDED_REGISTER_OPCODE:
+            execute_add_extended_register(instruction);
+            return;
+        case MUL_OPCODE:
+            execute_mul(instruction);
+            return;
+    }
+    
+    // Verificamos opcodes de 22 bits
+    if (opcode22 == BR_OPCODE) {
+        execute_br(instruction);
+        return;
+    }
+
+    // Avanza el PC (chequear si branchea)
+    NEXT_STATE.PC = CURRENT_STATE.PC + 4;
+}
+
+
+
 
 

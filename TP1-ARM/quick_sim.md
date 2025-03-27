@@ -1,5 +1,5 @@
 ### Antes correr:
-```chmod +x 2hex.sh run_ref_sim.sh run_test_arm.sh```
+```chmod +x 2hex.sh run_ref_sim.sh run_test_sim.sh```
 
 Sino da error de permisos
 

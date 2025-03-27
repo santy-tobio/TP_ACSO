@@ -1,8 +1,14 @@
 #include <stdio.h>
-#include <assert.h>
-#include <string.h>
-#include "sim.h"
+#include <stdint.h>
 #include "shell.h"
+#include "decode.h"
+#include "execute.h"
+
+// Función auxiliar para actualizar las banderas N y Z
+void update_flags(int64_t result) {
+    NEXT_STATE.FLAG_N = (result < 0) ? 1 : 0;
+    NEXT_STATE.FLAG_Z = (result == 0) ? 1 : 0;
+}
 
 // '0000 0000 0000 0000  0000 0000 0000 0000'
 
