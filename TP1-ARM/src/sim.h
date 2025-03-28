@@ -28,7 +28,9 @@ typedef struct {
 } instruction_t;
 
 instruction_t decode_instruction(uint32_t inst);
+uint32_t extract_bits(uint32_t instruction, int start, int end);
 void execute_instruction(instruction_t inst);
+void decode_and_execute_instruction(uint32_t instruction);
 void process_instruction(); // Requerida por shell.h
 void flags_updater();
 

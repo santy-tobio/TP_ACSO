@@ -3,6 +3,8 @@
 
 #include <stdint.h>
 
+int64_t zeroExtend(uint32_t value, int bits);
+
 // Función auxiliar para actualizar las banderas N y Z
 void update_flags(int64_t result);
 
