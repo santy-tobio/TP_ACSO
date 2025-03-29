@@ -36,7 +36,7 @@ int64_t zeroExtend_imm12(uint32_t imm12, uint32_t shift)
 }
 
 void execute_adds_immediate(uint32_t instruction) {
-    printf("Ejecutando ADDS IMMEDIATE\n");
+    //printf("Ejecutando ADDS IMMEDIATE\n");
 
     uint32_t shift = decode_shift(instruction);
     int32_t imm12 = decode_imm12(instruction);
@@ -53,7 +53,7 @@ void execute_adds_immediate(uint32_t instruction) {
 }
 
 void execute_adds_extended_register(uint32_t instruction) {
-    printf("Ejecutando ADDS EXTENDED REGISTER\n");
+    //printf("Ejecutando ADDS EXTENDED REGISTER\n");
 
     uint32_t rd = decode_rd(instruction);
     uint32_t rn = decode_rn(instruction);
@@ -65,7 +65,7 @@ void execute_adds_extended_register(uint32_t instruction) {
 }
 
 void execute_subs_immediate(uint32_t instruction) {
-    printf("Ejecutando SUBS IMMEDIATE\n");
+    //printf("Ejecutando SUBS IMMEDIATE\n");
     uint32_t shift = decode_shift(instruction);
     uint32_t imm12 = decode_imm12(instruction);
     uint32_t rn = decode_rn(instruction);
@@ -78,7 +78,7 @@ void execute_subs_immediate(uint32_t instruction) {
 }
 
 void execute_subs_extended_register(uint32_t instruction) {
-    printf("Ejecutando SUBS EXTENDED REGISTER\n");
+    //printf("Ejecutando SUBS EXTENDED REGISTER\n");
 
     uint32_t rd = decode_rd(instruction);
     uint32_t rn = decode_rn(instruction);
@@ -90,7 +90,7 @@ void execute_subs_extended_register(uint32_t instruction) {
 }
 
 void execute_halt(uint32_t instruction) {
-    printf("Ejecutando HALT\n");
+    //printf("Ejecutando HALT\n");
     RUN_BIT = 0;
 }
 
@@ -106,6 +106,7 @@ void execute_cmp_immediate(uint32_t instruction) {
     // int64_t result = CURRENT_STATE.REGS[rn] - imm12;
     // update_flags(result);
 }
+
 void execute_cmp_extended_register(uint32_t instruction) {
     // printf("Ejecutando CMP EXTENDED REGISTER\n");
 
@@ -118,7 +119,7 @@ void execute_cmp_extended_register(uint32_t instruction) {
 
 void execute_ands_shifted_register(uint32_t instruction) {
     // No hay que implementar shift
-    printf("Ejecutando ANDS SHIFTED REGISTER\n");
+    //printf("Ejecutando ANDS SHIFTED REGISTER\n");
 
     uint32_t rd = decode_rd(instruction);
     uint32_t rn = decode_rn(instruction);
@@ -131,7 +132,7 @@ void execute_ands_shifted_register(uint32_t instruction) {
 
 void execute_eor_shifted_register(uint32_t instruction) {
     //! No hay que implementar shift, pero en los tests lo usan?!?!?!
-    printf("Ejecutando EOR SHIFTED REGISTER\n");
+    //printf("Ejecutando EOR SHIFTED REGISTER\n");
 
     uint32_t rd = decode_rd(instruction);
     uint32_t rn = decode_rn(instruction);
@@ -144,7 +145,7 @@ void execute_eor_shifted_register(uint32_t instruction) {
 
 void execute_orr_shifted_register(uint32_t instruction) {
     // No hay que implementar shift
-    printf("Ejecutando ORR SHIFTED REGISTER\n");
+    //printf("Ejecutando ORR SHIFTED REGISTER\n");
 
     uint32_t rd = decode_rd(instruction);
     uint32_t rn = decode_rn(instruction);
@@ -154,9 +155,10 @@ void execute_orr_shifted_register(uint32_t instruction) {
 
     update_flags(NEXT_STATE.REGS[rd]);
 }
+
 void execute_movz(uint32_t instruction) {
     //! "Solo hay que implementar la condición donde hw = 0, osea shift es cero"
-    printf("Ejecutando MOVZ\n");
+    //printf("Ejecutando MOVZ\n");
 
     uint32_t imm16 = decode_imm16(instruction);
     uint32_t rd = decode_rd(instruction);
@@ -165,7 +167,7 @@ void execute_movz(uint32_t instruction) {
 }
 
 void execute_b(uint32_t instruction) {
-    printf("Ejecutando B\n");
+    //printf("Ejecutando B\n");
 
     uint32_t imm26 = decode_imm26(instruction);
 
@@ -175,7 +177,7 @@ void execute_b(uint32_t instruction) {
 
 void execute_br(uint32_t instruction) {
     //! Falta hacerle un test no es facil
-    printf("Ejecutando BR\n");
+    //printf("Ejecutando BR\n");
 
     uint32_t rn = decode_rn(instruction);
 
@@ -195,7 +197,7 @@ void execute_add_immediate(uint32_t instruction) {}
 void execute_add_extended_register(uint32_t instruction) {}
 void execute_mul(uint32_t instruction) {
     // ! falta test
-    printf("Ejecutando MUL\n");
+    //printf("Ejecutando MUL\n");
 
     uint32_t rd = decode_rd(instruction);
     uint32_t rn = decode_rn(instruction);
