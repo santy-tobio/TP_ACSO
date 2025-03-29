@@ -121,8 +121,6 @@ uint32_t extract_bits(uint32_t instruction, int start, int end) {
 void process_instruction() {
 
     uint32_t instruction = mem_read_32(CURRENT_STATE.PC);
-
-    // Decodificar y ejecutar la instrucción
     decode_and_execute_instruction(instruction);
 
     // Avanza el PC (chequear si branchea)
