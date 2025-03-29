@@ -119,7 +119,7 @@ void mem_write_32(uint64_t address, uint32_t value)
 /* Purpose   : Print out a list of commands                    */
 /*                                                             */
 /***************************************************************/
-void help() {                                                    
+void help() {
   printf("----------------ARM ISIM Help-----------------------\n");
   printf("go               -  run program to completion         \n");
   printf("run n            -  execute program for n instructions\n");
@@ -137,7 +137,7 @@ void help() {
 /* Purpose   : Execute a cycle                                 */
 /*                                                             */
 /***************************************************************/
-void cycle() {                                                
+void cycle() {
 
   process_instruction();
   CURRENT_STATE = NEXT_STATE;
@@ -151,7 +151,7 @@ void cycle() {
 /* Purpose   : Simulate ARM for n cycles                       */
 /*                                                             */
 /***************************************************************/
-void run(int num_cycles) {                                      
+void run(int num_cycles) {
   int i;
 
   if (RUN_BIT == FALSE) {
@@ -169,7 +169,7 @@ void run(int num_cycles) {
   }
 }
 
-/***************************************************************/ 
+/***************************************************************/
 /*                                                             */
 /* Procedure : mdump                                           */
 /*                                                             */
@@ -177,7 +177,7 @@ void run(int num_cycles) {
 /*             output file.                                    */
 /*                                                             */
 /***************************************************************/
-void mdump(FILE * dumpsim_file, int start, int stop) {          
+void mdump(FILE * dumpsim_file, int start, int stop) {
   int address;
 
   printf("\nMemory content [0x%08x..0x%08x] :\n", start, stop);
@@ -198,12 +198,12 @@ void mdump(FILE * dumpsim_file, int start, int stop) {
 /*                                                             */
 /* Procedure : rdump                                           */
 /*                                                             */
-/* Purpose   : Dump current register and bus values to the     */   
+/* Purpose   : Dump current register and bus values to the     */
 /*             output file.                                    */
 /*                                                             */
 /***************************************************************/
-void rdump(FILE * dumpsim_file) {                               
-  int k; 
+void rdump(FILE * dumpsim_file) {
+  int k;
 
   printf("\nCurrent register/bus values :\n");
   printf("-------------------------------------\n");
@@ -235,7 +235,7 @@ void rdump(FILE * dumpsim_file) {
 /* Purpose   : Simulate ARM until HALTed                       */
 /*                                                             */
 /***************************************************************/
-void go(FILE * dumpsim_file) {                                                     
+void go(FILE * dumpsim_file) {
   if (RUN_BIT == FALSE) {
     printf("Can't simulate, Simulator is halted\n\n");
     return;
@@ -256,10 +256,10 @@ void go(FILE * dumpsim_file) {
 /*                                                             */
 /* Procedure : get_command                                     */
 /*                                                             */
-/* Purpose   : Read a command from standard input.             */  
+/* Purpose   : Read a command from standard input.             */
 /*                                                             */
 /***************************************************************/
-void get_command(FILE * dumpsim_file) {                         
+void get_command(FILE * dumpsim_file) {
   char buffer[20];
   int start, stop, cycles;
   int register_no;
@@ -326,7 +326,7 @@ void get_command(FILE * dumpsim_file) {
 /* Purpose   : Allocate and zero memory                        */
 /*                                                             */
 /***************************************************************/
-void init_memory() {                                           
+void init_memory() {
     int i;
     for (i = 0; i < MEM_NREGIONS; i++) {
         // Extra 3 bytes to prevent buffer overflow on unaligned access.
@@ -342,7 +342,7 @@ void init_memory() {
 /* Purpose   : Load program and service routines into mem.    */
 /*                                                            */
 /**************************************************************/
-void load_program(char *program_filename) {                   
+void load_program(char *program_filename) {
   FILE * prog;
   int ii, word;
 
@@ -375,11 +375,11 @@ void load_program(char *program_filename) {
 /*                                                          */
 /* Procedure : initialize                                   */
 /*                                                          */
-/* Purpose   : Load machine language program                */ 
+/* Purpose   : Load machine language program                */
 /*             and set up initial state of the machine.     */
 /*                                                          */
 /************************************************************/
-void initialize(char *program_filename, int num_prog_files) { 
+void initialize(char *program_filename, int num_prog_files) {
   int i;
 
   init_memory();
@@ -388,7 +388,7 @@ void initialize(char *program_filename, int num_prog_files) {
     while(*program_filename++ != '\0');
   }
   NEXT_STATE = CURRENT_STATE;
-    
+
   RUN_BIT = TRUE;
 }
 
@@ -397,7 +397,7 @@ void initialize(char *program_filename, int num_prog_files) {
 /* Procedure : main                                            */
 /*                                                             */
 /***************************************************************/
-int main(int argc, char *argv[]) {                              
+int main(int argc, char *argv[]) {
   FILE * dumpsim_file;
 
   /* Error Checking */

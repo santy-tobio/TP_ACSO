@@ -19,12 +19,12 @@ uint32_t decode_rm(uint32_t instruction) {
     return extract_bits(instruction, 16, 20);
 }
 
-// Decodificar un immediate de 6 bits para branching - bits 16-21
+// Decodificar un immediate de 6 bits - bits 16-21
 uint32_t decode_immr(uint32_t instruction) {
     return extract_bits(instruction, 16, 21);
 }
 
-// Decodificar un immediate de 6 bits para branching - bits 10-15
+// Decodificar un immediate de 6 bits shifting - bits 10-15
 uint32_t decode_imms(uint32_t instruction) {
     return extract_bits(instruction, 10, 15);
 }

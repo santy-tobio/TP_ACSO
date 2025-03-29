@@ -8,5 +8,5 @@
 
 for file in "$@"
 do
-    inputs/asm2hex "inputs/$file"
+    inputs/asm2hex "$file"
 done

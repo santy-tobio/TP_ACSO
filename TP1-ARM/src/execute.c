@@ -11,8 +11,7 @@ void update_flags(int64_t result) {
     NEXT_STATE.FLAG_Z = (result == 0) ? 1 : 0;
 }
 
-int64_t zeroExtend(uint32_t value, int bits)
-{
+int64_t zeroExtend(uint32_t value, int bits) {
     int64_t mask = 0;
     for (int i = 0; i < bits; i++)
     {
@@ -22,8 +21,7 @@ int64_t zeroExtend(uint32_t value, int bits)
     return value & mask;
 }
 
-int64_t zeroExtend_imm12(uint32_t imm12, uint32_t shift)
-{
+int64_t zeroExtend_imm12(uint32_t imm12, uint32_t shift) {
     if (shift == 1)
     {
         imm12 = imm12 << 12;
@@ -55,23 +53,20 @@ bool evaluate_condition(uint32_t condition, int flag_n, int flag_z) {
     }
 }
 
-void execute_adds_immediate(uint32_t instruction) {
+void execute_adds_immediate(uint32_t instruction) { //!TESTEADA
 
     uint32_t shift = decode_shift(instruction);
     int32_t imm12 = decode_imm12(instruction);
     uint32_t rn = decode_rn(instruction);
     uint32_t rd = decode_rd(instruction);
 
-    // Fijarse si imm12 hay que castearlo a int64_t/hacer una variable nueva
     imm12 = zeroExtend_imm12(imm12, shift);
-
-    // hay que testear esta implementacion !! tamibén testear el zeroExtend
 
     NEXT_STATE.REGS[rd] = CURRENT_STATE.REGS[rn] + imm12;
     update_flags(NEXT_STATE.REGS[rd]);
 }
 
-void execute_adds_extended_register(uint32_t instruction) {
+void execute_adds_extended_register(uint32_t instruction) { //!TESTEADA
 
     uint32_t rd = decode_rd(instruction);
     uint32_t rn = decode_rn(instruction);
@@ -82,7 +77,7 @@ void execute_adds_extended_register(uint32_t instruction) {
     update_flags(NEXT_STATE.REGS[rd]);
 }
 
-void execute_subs_immediate(uint32_t instruction) {
+void execute_subs_immediate(uint32_t instruction) {//!TESTEADA
 
     uint32_t shift = decode_shift(instruction);
     uint32_t imm12 = decode_imm12(instruction);
@@ -95,7 +90,7 @@ void execute_subs_immediate(uint32_t instruction) {
     update_flags(NEXT_STATE.REGS[rd]);
 }
 
-void execute_subs_extended_register(uint32_t instruction) {
+void execute_subs_extended_register(uint32_t instruction) { //!TES  TEADA
 
     uint32_t rd = decode_rd(instruction);
     uint32_t rn = decode_rn(instruction);
@@ -106,32 +101,9 @@ void execute_subs_extended_register(uint32_t instruction) {
     update_flags(NEXT_STATE.REGS[rd]);
 }
 
-void execute_halt(uint32_t instruction) {RUN_BIT = 0;}
+void execute_halt(uint32_t instruction) {RUN_BIT = 0;} //!TESTEADA
 
-void execute_cmp_immediate(uint32_t instruction) {
-    
-    // uint32_t shift = decode_shift(instruction);
-    // uint32_t imm12 = decode_imm12(instruction);
-    // uint32_t rn = decode_rn(instruction);
-
-    // imm12 = zeroExtend_imm12(imm12, shift);
-
-    // int64_t result = CURRENT_STATE.REGS[rn] - imm12;
-    // update_flags(result);
-}
-
-void execute_cmp_extended_register(uint32_t instruction) {
-
-    // uint32_t rn = decode_rn(instruction);
-    // uint32_t rm = decode_rm(instruction);
-
-    // int64_t result = CURRENT_STATE.REGS[rn] - CURRENT_STATE.REGS[rm];
-    // update_flags(result);
-}
-
-void execute_ands_shifted_register(uint32_t instruction) {
-    // No hay que implementar shift
-
+void execute_ands_shifted_register(uint32_t instruction) { //!TESTEADA
     uint32_t rd = decode_rd(instruction);
     uint32_t rn = decode_rn(instruction);
     uint32_t rm = decode_rm(instruction);
@@ -141,32 +113,23 @@ void execute_ands_shifted_register(uint32_t instruction) {
     update_flags(NEXT_STATE.REGS[rd]);
 }
 
-void execute_eor_shifted_register(uint32_t instruction) {
-    //! No hay que implementar shift, pero en los tests lo usan?!?!?!
-
+void execute_eor_shifted_register(uint32_t instruction) { //!TESTEADA
     uint32_t rd = decode_rd(instruction);
     uint32_t rn = decode_rn(instruction);
     uint32_t rm = decode_rm(instruction);
 
     NEXT_STATE.REGS[rd] = CURRENT_STATE.REGS[rn] ^ CURRENT_STATE.REGS[rm];
-
-    update_flags(NEXT_STATE.REGS[rd]);
 }
 
-void execute_orr_shifted_register(uint32_t instruction) {
-    // No hay que implementar shift
-
+void execute_orr_shifted_register(uint32_t instruction) { //!TESTEADA
     uint32_t rd = decode_rd(instruction);
     uint32_t rn = decode_rn(instruction);
     uint32_t rm = decode_rm(instruction);
 
     NEXT_STATE.REGS[rd] = CURRENT_STATE.REGS[rn] | CURRENT_STATE.REGS[rm];
-
-    update_flags(NEXT_STATE.REGS[rd]);
 }
 
-void execute_movz(uint32_t instruction) {
-    //! "Solo hay que implementar la condición donde hw = 0, osea shift es cero"
+void execute_movz(uint32_t instruction) { //!TESTEADA
 
     uint32_t imm16 = decode_imm16(instruction);
     uint32_t rd = decode_rd(instruction);
@@ -174,7 +137,7 @@ void execute_movz(uint32_t instruction) {
     NEXT_STATE.REGS[rd] = imm16;
 }
 
-void execute_b(uint32_t instruction) {
+void execute_b(uint32_t instruction) { //!TESTEADA
 
     uint32_t imm26 = decode_imm26(instruction); // el inmediato me dice cuanto saltar
     // Desplazo 2 bits a la derecha para obtener el inmediato de 28 bits
@@ -183,14 +146,14 @@ void execute_b(uint32_t instruction) {
     CURRENT_STATE.PC = CURRENT_STATE.PC + imm26 * 4 - 4;
 }
 
-void execute_br(uint32_t instruction) {
+void execute_br(uint32_t instruction) { //!TESTEADA
 
     uint32_t rn = decode_rn(instruction);
 
     CURRENT_STATE.PC = CURRENT_STATE.REGS[rn] - 4;
 }
 
-void execute_bcond(uint32_t instruction) {
+void execute_bcond(uint32_t instruction) {  //!TESTEADA
     uint32_t condition = decode_condition(instruction);
     uint32_t imm19 = decode_imm19(instruction);
 
@@ -200,39 +163,28 @@ void execute_bcond(uint32_t instruction) {
     }
 }
 
-void execute_lsl(uint32_t instruction) {
+void execute_lsl(uint32_t instruction) { //!TESTEADA
     uint32_t rd = decode_rd(instruction);
     uint32_t rn = decode_rn(instruction);
     uint32_t immr = decode_immr(instruction);
-    uint32_t imms = decode_imms(instruction);
 
-    if (imms != 0b111111) {
-        //! Si imms es distinto de 111111, entonces la instrucción es inválida
-        // printf("Instrucción inválida: imms debe ser 111111\n");
-        return;
-    }
+    // Para LSL, el valor de desplazamiento es (64 - immr) % 64
+    uint32_t shift = (64 - immr) % 64;
 
-    // Desplazo a la izquierda el valor de rn
-    NEXT_STATE.REGS[rd] = CURRENT_STATE.REGS[rn] << immr;
+    // Ahora hacemos el desplazamiento correcto
+    NEXT_STATE.REGS[rd] = CURRENT_STATE.REGS[rn] << shift;
 }
 
-void execute_lsr(uint32_t instruction) {
+void execute_lsr(uint32_t instruction) { //!TESTEADA
     uint32_t rd = decode_rd(instruction);
     uint32_t rn = decode_rn(instruction);
     uint32_t immr = decode_immr(instruction);
-    uint32_t imms = decode_imms(instruction);
-
-    if (imms != 0b111111) {
-        //! Si imms es distinto de 111111, entonces la instrucción es inválida
-        // printf("Instrucción inválida: imms debe ser 111111\n");
-        return;
-    }
 
     // Desplazo a la derecha el valor de rn
     NEXT_STATE.REGS[rd] = CURRENT_STATE.REGS[rn] >> immr;
 }
 
-void execute_stur(uint32_t instruction) {
+void execute_stur(uint32_t instruction) {  //!TESTEADA
     uint32_t rt = decode_rd(instruction);
     uint32_t rn = decode_rn(instruction);
     int32_t offset = decode_mem_offset(instruction);
@@ -241,13 +193,27 @@ void execute_stur(uint32_t instruction) {
     mem_write_32(address, CURRENT_STATE.REGS[rt]);
 }
 
-void execute_sturb(uint32_t instruction) {
+void execute_sturb(uint32_t instruction) {  //!TESTEADA
+    uint32_t rt = decode_rd(instruction);
+    uint32_t rn = decode_rn(instruction);
+    int32_t offset = decode_mem_offset(instruction);
 
+    uint64_t address = (CURRENT_STATE.REGS[rn] + offset);
+    uint32_t value = CURRENT_STATE.REGS[rt] & 0xFF;
+    mem_write_32(address, value);
 }
 
-void execute_sturh(uint32_t instruction) {}
+void execute_sturh(uint32_t instruction) { //!TESTEADA
+    uint32_t rt = decode_rd(instruction);
+    uint32_t rn = decode_rn(instruction);
+    int32_t offset = decode_mem_offset(instruction);
 
-void execute_ldur(uint32_t instruction) {
+    uint64_t address = (CURRENT_STATE.REGS[rn] + offset);
+    uint32_t value = CURRENT_STATE.REGS[rt] & 0xFFFF;
+    mem_write_32(address, value);
+}
+
+void execute_ldur(uint32_t instruction) { //!TESTEADA
     uint32_t rd = decode_rd(instruction);
     uint32_t rn = decode_rn(instruction);
     int32_t offset = decode_mem_offset(instruction);
@@ -255,14 +221,45 @@ void execute_ldur(uint32_t instruction) {
 
     NEXT_STATE.REGS[rd] = mem_read_32(address);
 }
-void execute_ldurh(uint32_t instruction) {}
-void execute_ldurb(uint32_t instruction) {}
-void execute_add_immediate(uint32_t instruction) {}
-void execute_add_extended_register(uint32_t instruction) {}
-void execute_mul(uint32_t instruction) {
-    // ! falta test
-    //printf("Ejecutando MUL\n");
 
+void execute_ldurb(uint32_t instruction) { //!TESTEADA
+    uint32_t rd = decode_rd(instruction);
+    uint32_t rn = decode_rn(instruction);
+    int32_t offset = decode_mem_offset(instruction);
+    uint64_t address = CURRENT_STATE.REGS[rn] + offset;
+
+    NEXT_STATE.REGS[rd] = mem_read_32(address) & 0xFF;
+}
+
+void execute_ldurh(uint32_t instruction) {  //!TESTEADA
+    uint32_t rd = decode_rd(instruction);
+    uint32_t rn = decode_rn(instruction);
+    int32_t offset = decode_mem_offset(instruction);
+    uint64_t address = CURRENT_STATE.REGS[rn] + offset;
+
+    NEXT_STATE.REGS[rd] = mem_read_32(address) & 0xFFFF;
+}
+
+void execute_add_immediate(uint32_t instruction) {  //!TESTEADA
+    uint32_t shift = decode_shift(instruction);
+    int32_t imm12 = decode_imm12(instruction);
+    uint32_t rn = decode_rn(instruction);
+    uint32_t rd = decode_rd(instruction);
+
+    imm12 = zeroExtend_imm12(imm12, shift);
+
+    NEXT_STATE.REGS[rd] = CURRENT_STATE.REGS[rn] + imm12;
+}
+
+void execute_add_extended_register(uint32_t instruction) { //!TESTEADA
+    uint32_t rd = decode_rd(instruction);
+    uint32_t rn = decode_rn(instruction);
+    uint32_t rm = decode_rm(instruction);
+
+    NEXT_STATE.REGS[rd] = CURRENT_STATE.REGS[rn] + CURRENT_STATE.REGS[rm];
+}
+
+void execute_mul(uint32_t instruction) { //!TESTEADA
     uint32_t rd = decode_rd(instruction);
     uint32_t rn = decode_rn(instruction);
     uint32_t rm = decode_rm(instruction);
@@ -270,5 +267,20 @@ void execute_mul(uint32_t instruction) {
     NEXT_STATE.REGS[rd] = CURRENT_STATE.REGS[rn] * CURRENT_STATE.REGS[rm];
 }
 
-void execute_cbz(uint32_t instruction) {}
-void execute_cbnz(uint32_t instruction) {}
+void execute_cbz(uint32_t instruction) {    //!TESTEADA
+    uint32_t imm19 = decode_imm19(instruction);
+    uint32_t rn = decode_rd(instruction);
+
+    if (CURRENT_STATE.REGS[rn] == 0) {
+        CURRENT_STATE.PC = CURRENT_STATE.PC + imm19 * 4 - 4;
+    }
+}
+
+void execute_cbnz(uint32_t instruction) { //!TESTEADA
+    uint32_t imm19 = decode_imm19(instruction);
+    uint32_t rn = decode_rd(instruction);
+
+    if (CURRENT_STATE.REGS[rn] != 0) {
+        CURRENT_STATE.PC = CURRENT_STATE.PC + imm19 * 4 - 4;
+    }
+}

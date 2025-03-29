@@ -1,6 +1,7 @@
 {
     "files.associations": {
         "execute.h": "c",
-        "decode.h": "c"
+        "decode.h": "c",
+        "stdio.h": "c"
     }
 }

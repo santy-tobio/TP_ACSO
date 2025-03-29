@@ -111,11 +111,22 @@ uint32_t extract_bits(uint32_t instruction, int start, int end) {
     // 'start' y 'end' son inclusivos, con 0 siendo el bit menos significativo
     // shiftea 'start' bits a la derecha y luego aplicar una máscara de 'end - start + 1' bits
     if (start > end || start < 0 || end > 31) { //! Tirar error
+        printf("ERROR: extract_bits: start > end o start o end fuera de rango\n");
         return 0;
     }
 
     uint32_t mask = (1 << (end - start + 1)) - 1;
     return (instruction >> start) & mask;
+}
+
+void print_bits(uint32_t instruction) {
+    for (int i = 31; i >= 0; i--) {
+        printf("%d", (instruction >> i) & 1);
+        if (i % 4 == 0) {
+            printf(" ");
+        }
+    }
+    printf("\n");
 }
 
 void process_instruction() {
@@ -125,6 +136,7 @@ void process_instruction() {
 
     // Avanza el PC (chequear si branchea)
     NEXT_STATE.PC = CURRENT_STATE.PC + 4;
+    NEXT_STATE.REGS[31] = 0;
 }
 
 void decode_and_execute_instruction(uint32_t instruction) {
@@ -184,8 +196,9 @@ void decode_and_execute_instruction(uint32_t instruction) {
     // Verificrmos opcodes de 10 bits
     switch (opcode10) {
         case LSL_OPCODE:
-        // Diferenciar entre LSL y LSR mediante el bit 21
-        if ((instruction >> 21) & 1) {
+        // Diferenciar entre LSL y LSR mediante el bit 15
+        uint32_t is_right = extract_bits(instruction, 10, 15) == 0b111111;
+        if (is_right) {
             execute_lsr(instruction);
         } else {
             execute_lsl(instruction);
