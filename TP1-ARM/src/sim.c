@@ -133,8 +133,6 @@ void process_instruction() {
 
     uint32_t instruction = mem_read_32(CURRENT_STATE.PC);
     decode_and_execute_instruction(instruction);
-
-    // Avanza el PC (chequear si branchea)
     NEXT_STATE.PC = CURRENT_STATE.PC + 4;
     NEXT_STATE.REGS[31] = 0;
 }
@@ -152,7 +150,7 @@ void decode_and_execute_instruction(uint32_t instruction) {
         execute_br(instruction);
         return;
     }
-
+    
     // Verificamos opcodes de 11 bits
     switch (opcode11) {
         case HALT_OPCODE:
@@ -186,9 +184,11 @@ void decode_and_execute_instruction(uint32_t instruction) {
             execute_ldurb(instruction);
             return;
         case ADD_EXTENDED_REGISTER_OPCODE:
+            printf("ENTRO EN ADD_EXTENDED_REGISTER_OPCODE\n");
             execute_add_extended_register(instruction);
             return;
         case MUL_OPCODE:
+            printf("ENTRO EN MUL_OPCODE\n");
             execute_mul(instruction);
             return;
     }
@@ -246,6 +246,7 @@ void decode_and_execute_instruction(uint32_t instruction) {
             execute_cbnz(instruction);
             return;
         case ADD_INMEDIATE_OPCODE:
+            printf("ENTRO EN ADD_INMEDIATE_OPCODE\n");
             execute_add_immediate(instruction);
             return;
     }

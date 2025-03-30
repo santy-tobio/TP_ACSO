@@ -241,6 +241,7 @@ void execute_ldurh(uint32_t instruction) {  //!TESTEADA
 }
 
 void execute_add_immediate(uint32_t instruction) {  //!TESTEADA
+    printf("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\n");
     uint32_t shift = decode_shift(instruction);
     int32_t imm12 = decode_imm12(instruction);
     uint32_t rn = decode_rn(instruction);
@@ -252,6 +253,7 @@ void execute_add_immediate(uint32_t instruction) {  //!TESTEADA
 }
 
 void execute_add_extended_register(uint32_t instruction) { //!TESTEADA
+    printf("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\n");
     uint32_t rd = decode_rd(instruction);
     uint32_t rn = decode_rn(instruction);
     uint32_t rm = decode_rm(instruction);
@@ -260,6 +262,7 @@ void execute_add_extended_register(uint32_t instruction) { //!TESTEADA
 }
 
 void execute_mul(uint32_t instruction) { //!TESTEADA
+    printf("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\n");
     uint32_t rd = decode_rd(instruction);
     uint32_t rn = decode_rn(instruction);
     uint32_t rm = decode_rm(instruction);

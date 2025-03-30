@@ -1,0 +1,17 @@
+rdump
+input 1 15
+input 3 40960
+input 5 7
+input 7 5
+rdump
+run 1
+rdump
+run 1
+rdump
+run 1
+rdump
+run 1
+rdump
+run 1
+rdump
+quit
