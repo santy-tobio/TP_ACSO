@@ -19,9 +19,9 @@ add X6, X7, X8                // X6 = X7 + X8 = 131070
 
 // Test con números negativos (usando SUB para crear negativos)
 movz X10, 0                   // X10 = 0
-sub X10, X10, 5               // X10 = -5
-movz X11, 0                   // X11 = 0 
-sub X11, X11, 10              // X11 = -10
+subs X10, X10, 5               // X10 = -5
+movz X11, 0                   // X11 = 0
+subs X11, X11, 10              // X11 = -10
 add X9, X10, X11              // X9 = X10 + X11 = -15
 
 HLT 0

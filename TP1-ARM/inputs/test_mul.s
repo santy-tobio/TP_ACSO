@@ -19,7 +19,7 @@ mul X8, X6, X7               // X8 = X6 * X7 = 42 * 0 = 0
 
 // Test con números negativos
 movz X9, 0
-sub X9, X9, 5                // X9 = -5
+subs X9, X9, 5                // X9 = -5
 movz X10, 3
 mul X11, X9, X10             // X11 = X9 * X10 = -5 * 3 = -15
 

@@ -10,7 +10,7 @@ adds x1, x0, 1      // Debería ejecutarse después del salto
 
 // Caso: salto hacia atrás (loop)
 adds x2, x2, 1
-b backward_jump     // Salto hacia atrás
+b backward_jump     
 adds x2, x2, 100    // Esta instrucción nunca debería ejecutarse
 
 backward_jump:

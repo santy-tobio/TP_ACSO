@@ -16,7 +16,7 @@ add X4, X5, 1                 // X4 = X5 + 1 = 65536
 
 // Test con números negativos (usando SUB para crear un negativo)
 movz X7, 0                    // X7 = 0
-sub X7, X7, 5                 // X7 = -5
+subs X7, X7, 5                 // X7 = -5
 add X6, X7, 10                // X6 = X7 + 10 = -5 + 10 = 5
 
 HLT 0

@@ -6,33 +6,29 @@ make
 
 cd ..
 
-# Colores para la salida
 GREEN='\033[0;32m'
 RED='\033[0;31m'
 BLUE='\033[0;34m'
-NC='\033[0m' # No Color
+NC='\033[0m' 
 
-# Configuración
 REF_SIM="./ref_sim_x86"
 MY_SIM="./src/sim"
 TEST_DIR="./inputs"
 TEMP_DIR="./temp_test"
 
-# Crear directorio temporal si no existe
+# hacemos un directorio temporal para no juntar basura
 mkdir -p $TEMP_DIR
 
-# Función para ejecutar y comparar un solo test
+# con esta funcion podemos correr los tests
 run_test() {
     local test_file="$1"
     local test_name=$(basename "$test_file" .x)
 
     echo -e "${BLUE}Testing $test_name...${NC}"
-
-    # Crear archivo de comandos para el simulador
     COMMAND_FILE="$TEMP_DIR/commands.txt"
-    echo "rdump" > $COMMAND_FILE  # Estado inicial
+    echo "rdump" > $COMMAND_FILE  
 
-    # Añadir comandos específicos según la instrucción que se está probando
+    # Estos comando son específicos para cada instrucción
     case "$test_name" in
         test_adds_immediate)
             echo "Prueba de ADDS IMMEDIATE"
@@ -122,7 +118,6 @@ run_test() {
         ;;
         test_b)
             echo "Prueba de B (Branch)"
-            # Configurar registros iniciales
             echo "input 0 0" >> $COMMAND_FILE       # X0 = 0
             echo "input 1 5" >> $COMMAND_FILE       # X1 = 5
             echo "input 2 0" >> $COMMAND_FILE       # X2 = 0
@@ -132,7 +127,7 @@ run_test() {
 
             # Ejecutamos 2 instrucciones: adds + branch
             echo "run 2" >> $COMMAND_FILE
-            echo "rdump" >> $COMMAND_FILE           # Verificar el salto
+            echo "rdump" >> $COMMAND_FILE           # Verifica el salto
 
             # Ejecutamos 2 instrucciones más: debería estar en forward_jump
             echo "run 2" >> $COMMAND_FILE
@@ -148,7 +143,7 @@ run_test() {
             # Configurar registros iniciales
             echo "input 0 0" >> $COMMAND_FILE           # X0 = 0
 
-            # Esto es clave: establecer X1 con la dirección del destino del salto
+            # Esto es clave: establece X1 con la dirección del destino del salto
             # Calculamos la dirección: posición inicial (0x00400000) + 16 bytes (4 instrucciones)
             echo "input 1 0x00400010" >> $COMMAND_FILE  # Dirección donde está "adds x4, x4, 1"
 
@@ -160,15 +155,15 @@ run_test() {
 
             # Ejecutamos la primera instrucción (adds x0, x0, 5)
             echo "run 1" >> $COMMAND_FILE
-            echo "rdump" >> $COMMAND_FILE               # Verificar que X0 = 5
+            echo "rdump" >> $COMMAND_FILE               # Verificamos que X0 = 5
 
             # Ejecutamos la instrucción BR
             echo "run 1" >> $COMMAND_FILE
-            echo "rdump" >> $COMMAND_FILE               # Verificar PC después del salto
+            echo "rdump" >> $COMMAND_FILE               # Verificamos PC después del salto
 
             # Ejecutamos la instrucción destino (adds x4, x4, 1)
             echo "run 1" >> $COMMAND_FILE
-            echo "rdump" >> $COMMAND_FILE               # Verificar que X4 = 1 y que X2, X3 siguen = 0
+            echo "rdump" >> $COMMAND_FILE               # Verificamos que X4 = 1 y que X2, X3 siguen = 0
 
             # Ejecutamos hasta HLT
             echo "run 1" >> $COMMAND_FILE
@@ -177,39 +172,38 @@ run_test() {
         test_bcond)
             echo "Prueba de B.cond (Branch Conditional)"
 
-            # Inicializar registros
             for i in {10..23}; do
-                echo "input $i 0" >> $COMMAND_FILE  # Inicializar x10-x23 a 0
+                echo "input $i 0" >> $COMMAND_FILE  # Inicializa x10-x23 a 0
             done
-            echo "rdump" >> $COMMAND_FILE          # Estado inicial
+            echo "rdump" >> $COMMAND_FILE      
 
             # Ejecutar hasta después de BEQ
             echo "run 5" >> $COMMAND_FILE
-            echo "rdump" >> $COMMAND_FILE          # Verificar x11=1, x10=0
+            echo "rdump" >> $COMMAND_FILE          # Verifica x11=1, x10=0
 
             # Ejecutar hasta después de BNE
             echo "run 4" >> $COMMAND_FILE
-            echo "rdump" >> $COMMAND_FILE          # Verificar x13=1, x12=0
+            echo "rdump" >> $COMMAND_FILE          # Verifica x13=1, x12=0
 
             # Ejecutar hasta después de BGT
             echo "run 4" >> $COMMAND_FILE
-            echo "rdump" >> $COMMAND_FILE          # Verificar x15=1, x14=0
+            echo "rdump" >> $COMMAND_FILE          # Verifica x15=1, x14=0
 
             # Ejecutar hasta después de BLT
             echo "run 4" >> $COMMAND_FILE
-            echo "rdump" >> $COMMAND_FILE          # Verificar x17=1, x16=0
+            echo "rdump" >> $COMMAND_FILE          # Verifica x17=1, x16=0
 
             # Ejecutar hasta después de BGE
             echo "run 4" >> $COMMAND_FILE
-            echo "rdump" >> $COMMAND_FILE          # Verificar x19=1, x18=0
+            echo "rdump" >> $COMMAND_FILE          # Verifica x19=1, x18=0
 
             # Ejecutar hasta después de primer BLE
             echo "run 4" >> $COMMAND_FILE
-            echo "rdump" >> $COMMAND_FILE          # Verificar x21=1, x20=0
+            echo "rdump" >> $COMMAND_FILE          # Verifica x21=1, x20=0
 
             # Ejecutar hasta después de segundo BLE
             echo "run 4" >> $COMMAND_FILE
-            echo "rdump" >> $COMMAND_FILE          # Verificar x23=1, x22=0
+            echo "rdump" >> $COMMAND_FILE          # Verifica x23=1, x22=0
 
             # Ejecutar hasta HLT
             echo "run 1" >> $COMMAND_FILE
@@ -222,58 +216,58 @@ run_test() {
             
             echo "rdump" >> $COMMAND_FILE              # Estado inicial
             
-            # Ejecutar el primer MOVZ (x0 = 0x1000)
+            # Ejecuta el primer MOVZ (x0 = 0x1000)
             echo "run 1" >> $COMMAND_FILE
             echo "rdump" >> $COMMAND_FILE              # X0 = 0x1000
             
-            # Ejecutar LSL (x0 = 0x10000000)
+            # Ejecuta LSL (x0 = 0x10000000)
             echo "run 1" >> $COMMAND_FILE
             echo "rdump" >> $COMMAND_FILE              # X0 = 0x10000000
             
-            # Ejecutar segundo MOVZ (x1 = 0x20)
+            # Ejecuta segundo MOVZ (x1 = 0x20)
             echo "run 1" >> $COMMAND_FILE
             echo "rdump" >> $COMMAND_FILE              # X1 = 0x20
             
-            # Ejecutar STUR (almacena X1 en dirección [X0+0xf])
+            # Ejecuta STUR (almacena X1 en dirección [X0+0xf])
             echo "run 1" >> $COMMAND_FILE
             echo "rdump" >> $COMMAND_FILE              # Verificar registros
             
-            # Verificar memoria para comprobar que el valor fue almacenado correctamente
+            # Verifica memoria para comprobar que el valor fue almacenado correctamente
             echo "mdump 0x10000000 0x10000020" >> $COMMAND_FILE
             
             # Ejecutar HLT
             echo "run 1" >> $COMMAND_FILE
             echo "rdump" >> $COMMAND_FILE              # Estado final
             
-            # Verificar memoria una vez más después de completar la ejecución
+            # Verifica memoria una vez más después de completar la ejecución
             echo "mdump 0x10000000 0x10000020" >> $COMMAND_FILE
             ;;
         test_halt)
             echo "Prueba de HLT"
 
-            # Inicializar registros
+            # Inicializa registros
             echo "input 0 0" >> $COMMAND_FILE  # X0 = 0
             echo "input 1 0" >> $COMMAND_FILE  # X1 = 0
             echo "input 2 0" >> $COMMAND_FILE  # X2 = 0
             echo "input 3 0" >> $COMMAND_FILE  # X3 = 0
             echo "rdump" >> $COMMAND_FILE     # Estado inicial
 
-            # Ejecutar las dos primeras instrucciones
+            # Ejecuta las dos primeras instrucciones
             echo "run 2" >> $COMMAND_FILE
             echo "rdump" >> $COMMAND_FILE     # X0 = 5, X1 = 10
 
-            # Ejecutar HLT
+            # Ejecuta HLT
             echo "run 1" >> $COMMAND_FILE
             echo "rdump" >> $COMMAND_FILE     # Estado después de HLT
 
-            # Intentar ejecutar más instrucciones (no deberían ejecutarse)
+            # Intenta ejecutar más instrucciones (no deberían ejecutarse)
             echo "run 1" >> $COMMAND_FILE
             echo "rdump" >> $COMMAND_FILE     # X2 y X3 deberían seguir siendo 0
             ;;
         test_ands_shifted_register)
             echo "Prueba de ANDS"
 
-            # Inicializar registros para AND
+            # Inicializa registros para AND
             echo "input 1 0xFF00" >> $COMMAND_FILE     # X1 = 0xFF00
             echo "input 2 0x0FF0" >> $COMMAND_FILE     # X2 = 0x0FF0
 
@@ -291,19 +285,19 @@ run_test() {
 
             echo "rdump" >> $COMMAND_FILE              # Estado inicial
 
-            # Ejecutar primera instrucción
+            # Ejecuta primera instrucción
             echo "run 1" >> $COMMAND_FILE
             echo "rdump" >> $COMMAND_FILE              # X0 = 0x0F00, N=0, Z=0
 
-            # Ejecutar segunda instrucción
+            # Ejecuta segunda instrucción
             echo "run 1" >> $COMMAND_FILE
             echo "rdump" >> $COMMAND_FILE              # X3 = 0, Z=1
 
-            # Ejecutar tercera instrucción
+            # Ejecuta tercera instrucción
             echo "run 1" >> $COMMAND_FILE
             echo "rdump" >> $COMMAND_FILE              # X6 tiene bit más significativo = 1, N=1
 
-            # Ejecutar cuarta instrucción
+            # Ejecuta cuarta instrucción
             echo "run 1" >> $COMMAND_FILE
             echo "rdump" >> $COMMAND_FILE              # X9 = todos 1s
 
@@ -314,7 +308,7 @@ run_test() {
         test_eor_shifted_register)
             echo "Prueba de EOR"
 
-            # Inicializar registros para XOR
+            # Inicializa registros para XOR
             echo "input 1 0xAAAA" >> $COMMAND_FILE     # X1 = 0xAAAA (alternado 1010...)
             echo "input 2 0x5555" >> $COMMAND_FILE     # X2 = 0x5555 (alternado 0101...)
 
@@ -332,23 +326,23 @@ run_test() {
 
             echo "rdump" >> $COMMAND_FILE              # Estado inicial
 
-            # Ejecutar primera instrucción
+            # Ejecuta primera instrucción
             echo "run 1" >> $COMMAND_FILE
             echo "rdump" >> $COMMAND_FILE              # X0 = 0xFFFF (todos 1s)
 
-            # Ejecutar segunda instrucción
+            # Ejecuta segunda instrucción
             echo "run 1" >> $COMMAND_FILE
             echo "rdump" >> $COMMAND_FILE              # X3 = 0
 
-            # Ejecutar tercera instrucción
+            # Ejecuta tercera instrucción
             echo "run 1" >> $COMMAND_FILE
             echo "rdump" >> $COMMAND_FILE              # X6 = 0xFFFF (todos 1s)
 
-            # Ejecutar cuarta instrucción
+            # Ejecuta cuarta instrucción
             echo "run 1" >> $COMMAND_FILE
             echo "rdump" >> $COMMAND_FILE              # X9 = 0xDEAD
 
-            # Ejecutar HLT
+            # Ejecuta HLT
             echo "run 1" >> $COMMAND_FILE
             echo "rdump" >> $COMMAND_FILE              # Estado final
             ;;
@@ -357,30 +351,30 @@ run_test() {
 
             echo "rdump" >> $COMMAND_FILE              # Estado inicial
 
-            # Ejecutar primera instrucción
+            # Ejecuta primera instrucción
             echo "run 1" >> $COMMAND_FILE
             echo "rdump" >> $COMMAND_FILE              # X0 = 0
 
-            # Ejecutar segunda instrucción
+            # Ejecuta segunda instrucción
             echo "run 1" >> $COMMAND_FILE
             echo "rdump" >> $COMMAND_FILE              # X1 = 10
 
-            # Ejecutar tercera instrucción
+            # Ejecuta tercera instrucción
             echo "run 1" >> $COMMAND_FILE
             echo "rdump" >> $COMMAND_FILE              # X2 = 0xFFFF (65535)
 
-            # Ejecutar cuarta instrucción
+            # Ejecuta cuarta instrucción
             echo "run 1" >> $COMMAND_FILE
             echo "rdump" >> $COMMAND_FILE              # X3 = 0xABCD (43981)
 
-            # Ejecutar HLT
+            # Ejecuta HLT
             echo "run 1" >> $COMMAND_FILE
             echo "rdump" >> $COMMAND_FILE              # Estado final
             ;;
         test_lsl)
             echo "Prueba de LSL"
 
-            # Inicializar registros para LSL
+            # Inicializa registros para LSL
             echo "input 1 5" >> $COMMAND_FILE          # X1 = 5
             echo "input 3 0xFF" >> $COMMAND_FILE       # X3 = 0xFF (255)
             echo "input 5 0xABCD" >> $COMMAND_FILE     # X5 = 0xABCD
@@ -388,19 +382,19 @@ run_test() {
 
             echo "rdump" >> $COMMAND_FILE              # Estado inicial
 
-            # Ejecutar primera instrucción
+            # Ejecuta primera instrucción
             echo "run 1" >> $COMMAND_FILE
             echo "rdump" >> $COMMAND_FILE              # X0 = 20 (5 << 2)
 
-            # Ejecutar segunda instrucción
+            # Ejecuta segunda instrucción
             echo "run 1" >> $COMMAND_FILE
             echo "rdump" >> $COMMAND_FILE              # X2 = 0xFF00 (255 << 8)
 
-            # Ejecutar tercera instrucción
+            # Ejecuta tercera instrucción
             echo "run 1" >> $COMMAND_FILE
             echo "rdump" >> $COMMAND_FILE              # X4 = 0xABCD0000 (0xABCD << 16)
 
-            # Ejecutar cuarta instrucción
+            # Ejecuta cuarta instrucción
             echo "run 1" >> $COMMAND_FILE
             echo "rdump" >> $COMMAND_FILE              # X6 = 16 (1 << 4)
 
@@ -411,7 +405,7 @@ run_test() {
         test_lsr)
             echo "Prueba de LSR"
 
-            # Inicializar registros para LSR
+            # Inicializa registros para LSR
             echo "input 1 20" >> $COMMAND_FILE         # X1 = 20
             echo "input 3 0xFF00" >> $COMMAND_FILE     # X3 = 0xFF00
             echo "input 5 0xABCD0000" >> $COMMAND_FILE # X5 = 0xABCD0000
@@ -419,54 +413,54 @@ run_test() {
 
             echo "rdump" >> $COMMAND_FILE              # Estado inicial
 
-            # Ejecutar primera instrucción
+            # Ejecuta primera instrucción
             echo "run 1" >> $COMMAND_FILE
             echo "rdump" >> $COMMAND_FILE              # X0 = 5 (20 >> 2)
 
-            # Ejecutar segunda instrucción
+            # Ejecuta segunda instrucción
             echo "run 1" >> $COMMAND_FILE
             echo "rdump" >> $COMMAND_FILE              # X2 = 0xFF (0xFF00 >> 8)
 
-            # Ejecutar tercera instrucción
+            # Ejecuta tercera instrucción
             echo "run 1" >> $COMMAND_FILE
             echo "rdump" >> $COMMAND_FILE              # X4 = 0xABCD (0xABCD0000 >> 16)
 
-            # Ejecutar cuarta instrucción
+            # Ejecuta cuarta instrucción
             echo "run 1" >> $COMMAND_FILE
             echo "rdump" >> $COMMAND_FILE              # X6 = 0x10 (0x100 >> 4)
 
-            # Ejecutar HLT
+            # Ejecuta HLT
             echo "run 1" >> $COMMAND_FILE
             echo "rdump" >> $COMMAND_FILE              # Estado final
             ;;
         test_ldur)
             echo "Prueba de LDUR"
 
-            # Inicializar registros
+            # Inicializa registros
             echo "input 1 0x10001000" >> $COMMAND_FILE  # X1 = dirección base
             echo "input 2 0xABCD" >> $COMMAND_FILE      # X2 = valor para guardar
             echo "input 3 0xDEF0" >> $COMMAND_FILE      # X3 = segundo valor
 
             echo "rdump" >> $COMMAND_FILE               # Estado inicial
 
-            # Ejecutar las primeras 3 instrucciones para preparar la memoria
+            # Ejecuta las primeras 3 instrucciones para preparar la memoria
             echo "run 3" >> $COMMAND_FILE
             echo "rdump" >> $COMMAND_FILE
             echo "mdump 0x10000FF8 0x10001010" >> $COMMAND_FILE  # Ver contenido de memoria
 
-            # Ejecutar la primera LDUR
+            # Ejecuta la primera LDUR
             echo "run 1" >> $COMMAND_FILE
             echo "rdump" >> $COMMAND_FILE               # X4 debe ser igual a X2 (0xABCD)
 
-            # Ejecutar la segunda LDUR
+            # Ejecuta la segunda LDUR
             echo "run 1" >> $COMMAND_FILE
             echo "rdump" >> $COMMAND_FILE               # X5 debe ser igual a X3 (0xDEF0)
 
-            # Ejecutar la tercera LDUR (con offset negativo)
+            # Ejecuta la tercera LDUR (con offset negativo)
             echo "run 1" >> $COMMAND_FILE
             echo "rdump" >> $COMMAND_FILE               # X6 depende del contenido en X1-8
 
-            # Ejecutar HLT
+            # Ejecuta HLT
             echo "run 1" >> $COMMAND_FILE
             echo "rdump" >> $COMMAND_FILE               # Estado final
             ;;
@@ -474,78 +468,78 @@ run_test() {
             echo "Prueba de MUL"
 
             # Inicializar registros
-            # No inicializamos aquí porque los valores se cargan con MOVZ en el test
+            # No inicializamos acá porque los valores se cargan con MOVZ en el test
 
             echo "rdump" >> $COMMAND_FILE               # Estado inicial
 
-            # Ejecutar hasta el primer MUL (carga X1 y X2 primero)
+            # Ejecuta hasta el primer MUL (carga X1 y X2 primero)
             echo "run 3" >> $COMMAND_FILE
             echo "rdump" >> $COMMAND_FILE               # X0 = 35 (5 * 7)
 
-            # Ejecutar hasta el segundo MUL (carga X3 y X4 primero)
+            # Ejecuta hasta el segundo MUL (carga X3 y X4 primero)
             echo "run 3" >> $COMMAND_FILE
             echo "rdump" >> $COMMAND_FILE               # X5 = 131070 (65535 * 2)
 
-            # Ejecutar hasta el tercer MUL (carga X6 y X7 primero)
+            # Ejecuta hasta el tercer MUL (carga X6 y X7 primero)
             echo "run 3" >> $COMMAND_FILE
             echo "rdump" >> $COMMAND_FILE               # X8 = 0 (42 * 0)
 
-            # Ejecutar hasta el cuarto MUL (carga X9 y X10 primero)
+            # Ejecuta hasta el cuarto MUL (carga X9 y X10 primero)
             echo "run 4" >> $COMMAND_FILE               # +1 para el SUB
             echo "rdump" >> $COMMAND_FILE               # X11 = -15 (-5 * 3)
 
-            # Ejecutar HLT
+            # Ejecuta HLT
             echo "run 1" >> $COMMAND_FILE
             echo "rdump" >> $COMMAND_FILE               # Estado final
             ;;
         test_sturb)
             echo "Prueba de STURB"
 
-            # Inicializar registros
+            # Inicializa registros
             echo "input 1 0x10001000" >> $COMMAND_FILE  # X1 = dirección base
             echo "input 2 0xABCD" >> $COMMAND_FILE      # X2 = valor para guardar (solo se guardará 0xCD)
             echo "input 3 0xFF" >> $COMMAND_FILE        # X3 = valor para guardar (0xFF)
 
             echo "rdump" >> $COMMAND_FILE               # Estado inicial
 
-            # Ejecutar las 3 operaciones STURB
+            # Ejecuta las 3 operaciones STURB
             echo "run 3" >> $COMMAND_FILE
             echo "mdump 0x10000FF8 0x10001010" >> $COMMAND_FILE  # Ver contenido de memoria
 
-            # Ejecutar las 3 operaciones LDUR para verificar
+            # Ejecuta las 3 operaciones LDUR para verificar
             echo "run 3" >> $COMMAND_FILE
             echo "rdump" >> $COMMAND_FILE               # X4, X5, X6 deben contener los valores guardados
 
-            # Ejecutar HLT
+            # Ejecuta HLT
             echo "run 1" >> $COMMAND_FILE
             echo "rdump" >> $COMMAND_FILE               # Estado final
             ;;
         test_sturh)
             echo "Prueba de STURH"
 
-            # Inicializar registros
+            # Inicializa registros
             echo "input 1 0x10001000" >> $COMMAND_FILE  # X1 = dirección base
             echo "input 2 0xABCD" >> $COMMAND_FILE      # X2 = valor para guardar (se guardará 0xABCD)
             echo "input 3 0xFFFF" >> $COMMAND_FILE      # X3 = valor para guardar (0xFFFF)
 
             echo "rdump" >> $COMMAND_FILE               # Estado inicial
 
-            # Ejecutar las 3 operaciones STURH
+            # Ejecuta las 3 operaciones STURH
             echo "run 3" >> $COMMAND_FILE
             echo "mdump 0x10000FF8 0x10001010" >> $COMMAND_FILE  # Ver contenido de memoria
 
-            # Ejecutar las 3 operaciones LDUR para verificar
+            # Ejecuta las 3 operaciones LDUR para verificar
             echo "run 3" >> $COMMAND_FILE
             echo "rdump" >> $COMMAND_FILE               # X4, X5, X6 deben contener los valores guardados
 
-            # Ejecutar HLT
+            # Ejecuta HLT
             echo "run 1" >> $COMMAND_FILE
             echo "rdump" >> $COMMAND_FILE               # Estado final
             ;;
         test_ldurb)
             echo "Prueba de LDURB"
 
-            # Inicializar registros
+            # Inicializa registros
             echo "input 1 0x10001000" >> $COMMAND_FILE  # X1 = dirección base
             echo "input 2 0xCD" >> $COMMAND_FILE        # X2 = 0xCD (valor de 8 bits)
             echo "input 3 0xFF" >> $COMMAND_FILE        # X3 = 0xFF (valor máximo de 8 bits)
@@ -553,19 +547,19 @@ run_test() {
 
             echo "rdump" >> $COMMAND_FILE               # Estado inicial
 
-            # Ejecutar las operaciones STURB para preparar la memoria
+            # Ejecuta las operaciones STURB para preparar la memoria
             echo "run 3" >> $COMMAND_FILE
-            echo "mdump 0x10000FF8 0x10001010" >> $COMMAND_FILE  # Ver contenido de memoria
+            echo "mdump 0x10000FF8 0x10001010" >> $COMMAND_FILE  # contenido de memoria
 
-            # Ejecutar la primera LDURB
+            # Ejecuta la primera LDURB
             echo "run 1" >> $COMMAND_FILE
             echo "rdump" >> $COMMAND_FILE               # X5 debe ser 0xCD
 
-            # Ejecutar la segunda LDURB
+            # Ejecuta la segunda LDURB
             echo "run 1" >> $COMMAND_FILE
             echo "rdump" >> $COMMAND_FILE               # X6 debe ser 0xFF
 
-            # Ejecutar la tercera LDURB
+            # Ejecuta la tercera LDURB
             echo "run 1" >> $COMMAND_FILE
             echo "rdump" >> $COMMAND_FILE               # X7 debe ser 0xAB
 
@@ -576,7 +570,7 @@ run_test() {
         test_ldurh)
             echo "Prueba de LDURH"
 
-            # Inicializar registros
+            # Inicializa registros
             echo "input 1 0x10001000" >> $COMMAND_FILE  # X1 = dirección base
             echo "input 2 0xABCD" >> $COMMAND_FILE      # X2 = 0xABCD (valor de 16 bits)
             echo "input 3 0xFFFF" >> $COMMAND_FILE      # X3 = 0xFFFF (valor máximo de 16 bits)
@@ -584,23 +578,23 @@ run_test() {
 
             echo "rdump" >> $COMMAND_FILE               # Estado inicial
 
-            # Ejecutar las operaciones STURH para preparar la memoria
+            # Ejecuta las operaciones STURH para preparar la memoria
             echo "run 3" >> $COMMAND_FILE
             echo "mdump 0x10000FF8 0x10001010" >> $COMMAND_FILE  # Ver contenido de memoria
 
-            # Ejecutar la primera LDURH
+            # Ejecuta la primera LDURH
             echo "run 1" >> $COMMAND_FILE
             echo "rdump" >> $COMMAND_FILE               # X5 debe ser 0xABCD
 
-            # Ejecutar la segunda LDURH
+            # Ejecuta la segunda LDURH
             echo "run 1" >> $COMMAND_FILE
             echo "rdump" >> $COMMAND_FILE               # X6 debe ser 0xFFFF
 
-            # Ejecutar la tercera LDURH
+            # Ejecuta la tercera LDURH
             echo "run 1" >> $COMMAND_FILE
             echo "rdump" >> $COMMAND_FILE               # X7 debe ser 0x1234
 
-            # Ejecutar HLT
+            # Ejecuta HLT
             echo "run 1" >> $COMMAND_FILE
             echo "rdump" >> $COMMAND_FILE               # Estado final
             ;;
@@ -609,23 +603,23 @@ run_test() {
 
             echo "rdump" >> $COMMAND_FILE               # Estado inicial
 
-            # Ejecutar hasta primer ADD (después de cargar X1)
+            # Ejecuta hasta primer ADD (después de cargar X1)
             echo "run 2" >> $COMMAND_FILE
             echo "rdump" >> $COMMAND_FILE               # X0 = 15
 
-            # Ejecutar hasta segundo ADD (después de cargar X3)
+            # Ejecuta hasta segundo ADD (después de cargar X3)
             echo "run 2" >> $COMMAND_FILE
             echo "rdump" >> $COMMAND_FILE               # X2 = 40975
 
-            # Ejecutar hasta tercer ADD (después de cargar X5)
+            # Ejecuta hasta tercer ADD (después de cargar X5)
             echo "run 2" >> $COMMAND_FILE
             echo "rdump" >> $COMMAND_FILE               # X4 = 65536
 
-            # Ejecutar hasta cuarto ADD (después de SUB con X7)
+            # Ejecuta hasta cuarto ADD (después de SUB con X7)
             echo "run 3" >> $COMMAND_FILE
             echo "rdump" >> $COMMAND_FILE               # X6 = 5
 
-            # Ejecutar HLT
+            # Ejecuta HLT
             echo "run 1" >> $COMMAND_FILE
             echo "rdump" >> $COMMAND_FILE               # Estado final
             ;;
@@ -634,115 +628,111 @@ run_test() {
 
             echo "rdump" >> $COMMAND_FILE               # Estado inicial
 
-            # Ejecutar hasta primer ADD (después de cargar X1 y X2)
+            # Ejecuta hasta primer ADD (después de cargar X1 y X2)
             echo "run 3" >> $COMMAND_FILE
             echo "rdump" >> $COMMAND_FILE               # X0 = 50
 
-            # Ejecutar hasta segundo ADD (después de cargar X4 y X5)
+            # Ejecuta hasta segundo ADD (después de cargar X4 y X5)
             echo "run 3" >> $COMMAND_FILE
             echo "rdump" >> $COMMAND_FILE               # X3 = 40
 
-            # Ejecutar hasta tercer ADD (después de cargar X7 y X8)
+            # Ejecuta hasta tercer ADD (después de cargar X7 y X8)
             echo "run 3" >> $COMMAND_FILE
             echo "rdump" >> $COMMAND_FILE               # X6 = 131070
 
-            # Ejecutar hasta cuarto ADD (después de SUB con X11)
+            # Ejecuta hasta cuarto ADD (después de SUB con X11)
             echo "run 5" >> $COMMAND_FILE
             echo "rdump" >> $COMMAND_FILE               # X9 = -15
 
-            # Ejecutar HLT
+            # Ejecuta HLT
             echo "run 1" >> $COMMAND_FILE
             echo "rdump" >> $COMMAND_FILE               # Estado final
             ;;
-        # For CBZ tests
         test_cbz)
-            echo "Prueba de CBZ (Compare and Branch if Zero)"
+            echo "Prueba de CBZ (compara y branchea si es cero)"
 
-            # Initialize all registers to known values
-            echo "input 1 0" >> $COMMAND_FILE      # X1 = 0 (will branch)
-            echo "input 3 5" >> $COMMAND_FILE      # X3 = 5 (won't branch)
+            echo "input 1 0" >> $COMMAND_FILE      # X1 = 0 (brachea)
+            echo "input 3 5" >> $COMMAND_FILE      # X3 = 5 (no brancha)
             echo "input 6 10" >> $COMMAND_FILE     # X6 = 10
-            echo "input 7 10" >> $COMMAND_FILE     # X7 = 10 (for subs test)
-            echo "input 12 65535" >> $COMMAND_FILE # X12 = 0xFFFF (won't branch)
+            echo "input 7 10" >> $COMMAND_FILE     # X7 = 10 (para subs test)
+            echo "input 12 65535" >> $COMMAND_FILE # X12 = 0xFFFF (no brancha)
 
-            echo "rdump" >> $COMMAND_FILE         # Show initial state
+            echo "rdump" >> $COMMAND_FILE         # estado inicial
 
-            # Execute first CBZ (should branch)
-            echo "run 3" >> $COMMAND_FILE         # movz + cbz + movz (after branch)
-            echo "rdump" >> $COMMAND_FILE         # X2 should be 2, X10 should be 0 (skipped)
+            # primero CBZ (debería branchear)
+            echo "run 3" >> $COMMAND_FILE         # movz + cbz + movz (después de branch)
+            echo "rdump" >> $COMMAND_FILE         # X2 should be 2, X10 deberia ser 0 (skippea)
 
-            # Execute second CBZ (should not branch)
-            echo "run 3" >> $COMMAND_FILE         # movz + cbz + movz (executed)
-            echo "rdump" >> $COMMAND_FILE         # X4 should be 4, X5 should be 5
+            # segundo CBZ (no debería branchear)
+            echo "run 3" >> $COMMAND_FILE         # movz + cbz + movz (ejecutado)
+            echo "rdump" >> $COMMAND_FILE         # X4 deberia ser 4, deberia ser 5
 
-            # Execute third CBZ with computation (should branch)
+            # tercero CBZ (debería branchear)
             echo "run 4" >> $COMMAND_FILE         # movz + movz + subs + cbz
-            echo "rdump" >> $COMMAND_FILE         # X8 should be 0, Z=1
-            echo "run 1" >> $COMMAND_FILE         # movz after branch
-            echo "rdump" >> $COMMAND_FILE         # X9 should be 9, X11 should be 0 (skipped)
+            echo "rdump" >> $COMMAND_FILE         # X8 deberia ser 0, Z=1
+            echo "run 1" >> $COMMAND_FILE         # movz después brancha
+            echo "rdump" >> $COMMAND_FILE         # X9 debería ser 9, X11 debería ser 0 (skippea)
 
-            # Execute fourth CBZ with negative value (should not branch)
+            # cuarto CBZ (no debería branchear)
             echo "run 3" >> $COMMAND_FILE         # movz + cbz + movz
-            echo "rdump" >> $COMMAND_FILE         # X13 should be 13, X14 should be 14
-
-            # Execute HLT
+            echo "rdump" >> $COMMAND_FILE         # X13 debria ser 13, X14 deberia ser 14
+            
+            # HALT
             echo "run 1" >> $COMMAND_FILE
-            echo "rdump" >> $COMMAND_FILE         # Final state
+            echo "rdump" >> $COMMAND_FILE         # Estado final
             ;;
 
-        # For CBNZ tests
         test_cbnz)
-            echo "Prueba de CBNZ (Compare and Branch if Not Zero)"
+            echo "Prueba de CBNZ (compara y branchea si no es cero)"
 
-            # Initialize all registers to known values
-            echo "input 1 0" >> $COMMAND_FILE      # X1 = 0 (won't branch)
-            echo "input 4 5" >> $COMMAND_FILE      # X4 = 5 (will branch)
+            echo "input 1 0" >> $COMMAND_FILE      # X1 = 0 (no branchea)
+            echo "input 4 5" >> $COMMAND_FILE      # X4 = 5 (branchea)
             echo "input 6 15" >> $COMMAND_FILE     # X6 = 15
-            echo "input 7 10" >> $COMMAND_FILE     # X7 = 10 (for subs test)
+            echo "input 7 10" >> $COMMAND_FILE     # X7 = 10 (para subs test)
 
-            echo "rdump" >> $COMMAND_FILE         # Show initial state
+            echo "rdump" >> $COMMAND_FILE         # estado inicial
 
-            # Execute first CBNZ (should not branch)
-            echo "run 3" >> $COMMAND_FILE         # movz + cbnz + movz (executed)
-            echo "rdump" >> $COMMAND_FILE         # X2 should be 2, X3 should be 3
+            # Ejecuta primer CBNZ (no debería branch)
+            echo "run 3" >> $COMMAND_FILE         # movz + cbnz + movz 
+            echo "rdump" >> $COMMAND_FILE         # X2 deberia ser 2, X3 deberia ser 3
 
-            # Execute second CBNZ (should branch)
-            echo "run 3" >> $COMMAND_FILE         # movz + cbnz + movz (after branch)
-            echo "rdump" >> $COMMAND_FILE         # X5 should be 5, X10 should be 0 (skipped)
+            # Ejecuta segundo CBNZ (debería branch)
+            echo "run 3" >> $COMMAND_FILE         # movz + cbnz + movz (después brancha)
+            echo "rdump" >> $COMMAND_FILE         # X5 deberia ser 5, X10 deberia ser 0 (skippea)
 
-            # Execute third CBNZ with computation (should branch)
+            # Ejecuta tercer CBNZ (debería branch)
             echo "run 4" >> $COMMAND_FILE         # movz + movz + subs + cbnz
-            echo "rdump" >> $COMMAND_FILE         # X8 should be 5, Z=0
-            echo "run 1" >> $COMMAND_FILE         # movz after branch
-            echo "rdump" >> $COMMAND_FILE         # X9 should be 9, X11 should be 0 (skipped)
+            echo "rdump" >> $COMMAND_FILE         # X8 deberia ser 5, Z=0
+            echo "run 1" >> $COMMAND_FILE         # movz despues brancha
+            echo "rdump" >> $COMMAND_FILE         # X9 deberia ser 9, X11 deberia ser 0 (skippea)
 
-            # Execute fourth CBNZ with zero result (should not branch)
+            # Ejecuta cuarto CBNZ (no debería branch)
             echo "run 3" >> $COMMAND_FILE         # movz + subs + cbnz
-            echo "rdump" >> $COMMAND_FILE         # X12 should be 0, Z=1
+            echo "rdump" >> $COMMAND_FILE         # X12 deberia ser 0, Z=1
             echo "run 2" >> $COMMAND_FILE         # movz + movz
-            echo "rdump" >> $COMMAND_FILE         # X13 should be 13, X14 should be 14
+            echo "rdump" >> $COMMAND_FILE         # X13 debería ser 13, X14 debería ser 14
 
-            # Execute fifth CBNZ with negative result (should branch)
+            # Ejecuta quinto CBNZ (debería branch)
             echo "run 4" >> $COMMAND_FILE         # movz + movz + subs + cbnz
-            echo "rdump" >> $COMMAND_FILE         # X17 should be -5, N=1, Z=0
-            echo "run 1" >> $COMMAND_FILE         # movz after branch
-            echo "rdump" >> $COMMAND_FILE         # X18 should be 18, X19 should be 0 (skipped)
+            echo "rdump" >> $COMMAND_FILE         # X17 deberia ser -5, N=1, Z=0
+            echo "run 1" >> $COMMAND_FILE         # movz después brancha
+            echo "rdump" >> $COMMAND_FILE         # X18 debería ser 18, X19 debería ser 0 (skippea)
 
             # Execute HLT
             echo "run 1" >> $COMMAND_FILE
-            echo "rdump" >> $COMMAND_FILE         # Final state
+            echo "rdump" >> $COMMAND_FILE         # Estado final
             ;; 
         *)
     esac
 
     echo "quit" >> $COMMAND_FILE
 
-    # Ejecutar el simulador de referencia
+    # Ejecuta el simulador de referencia
     $REF_SIM "$test_file" < $COMMAND_FILE > "$TEMP_DIR/ref_out.txt" 2>/dev/null
-    # Ejecutar mi simulador
+    # Ejecuta mi simulador
     $MY_SIM "$test_file" < $COMMAND_FILE > "$TEMP_DIR/my_out.txt" 2>/dev/null
 
-    # Comparar las salidas
+    # Compara las salidas
     if diff -q "$TEMP_DIR/ref_out.txt" "$TEMP_DIR/my_out.txt" > /dev/null; then
         echo -e "${GREEN}✅ Test passed for $test_name${NC}"
         return 0
@@ -772,7 +762,7 @@ run_all_tests() {
 
     echo -e "${BLUE}Test summary: $passed out of $total tests passed${NC}"
 
-    # Limpiar archivos temporales
+    # Limpia archivos temporales
     if [ $passed -eq $total ]; then
         rm -rf $TEMP_DIR
     fi

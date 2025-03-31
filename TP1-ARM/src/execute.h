@@ -2,39 +2,41 @@
 #define EXECUTE_H
 
 #include <stdint.h>
+#include <stdbool.h>
 
-int64_t zeroExtend(uint32_t value, int bits);
-
-// Función auxiliar para actualizar las banderas N y Z
+// Funciones auxiliares
 void update_flags(int64_t result);
+bool evaluate_condition(uint32_t condition, int flag_n, int flag_z);
+int64_t zeroExtend(uint32_t value, int bits);
+int64_t zeroExtend_imm12(uint32_t imm12, uint32_t shift);
+
 
 // Funciones para ejecutar instrucciones
-void execute_adds_immediate(uint32_t instruction);
-void execute_adds_extended_register(uint32_t instruction);
-void execute_subs_immediate(uint32_t instruction);
-void execute_subs_extended_register(uint32_t instruction);
-void execute_halt(uint32_t instruction);
-void execute_cmp_extended_register(uint32_t instruction);
-void execute_cmp_immediate(uint32_t instruction);
-void execute_ands_shifted_register(uint32_t instruction);
-void execute_eor_shifted_register(uint32_t instruction);
-void execute_orr_shifted_register(uint32_t instruction);
-void execute_b(uint32_t instruction);
-void execute_br(uint32_t instruction);
-void execute_bcond(uint32_t instruction);
-void execute_lsl(uint32_t instruction);
-void execute_lsr(uint32_t instruction);
-void execute_stur(uint32_t instruction);
-void execute_sturb(uint32_t instruction);
-void execute_sturh(uint32_t instruction);
-void execute_ldur(uint32_t instruction);
-void execute_ldurh(uint32_t instruction);
-void execute_ldurb(uint32_t instruction);
-void execute_movz(uint32_t instruction);
-void execute_add_immediate(uint32_t instruction);
-void execute_add_extended_register(uint32_t instruction);
-void execute_mul(uint32_t instruction);
-void execute_cbz(uint32_t instruction);
-void execute_cbnz(uint32_t instruction);
+void adds_immediate(uint32_t instruction);
+void adds_extended_register(uint32_t instruction);
+void subs_immediate(uint32_t instruction);
+void subs_extended_register(uint32_t instruction);
+void hlt(uint32_t instruction);
+void ands_shifted_register(uint32_t instruction);
+void eor_shifted_register(uint32_t instruction);
+void orr_shifted_register(uint32_t instruction);
+void b(uint32_t instruction);
+void br(uint32_t instruction);
+void bcond(uint32_t instruction);
+void ls(uint32_t instruction);
+void lsl(uint32_t instruction);
+void lsr(uint32_t instruction);
+void stur(uint32_t instruction);
+void sturb(uint32_t instruction);
+void sturh(uint32_t instruction);
+void ldur(uint32_t instruction);
+void ldurh(uint32_t instruction);
+void ldurb(uint32_t instruction);
+void movz(uint32_t instruction);
+void add_immediate(uint32_t instruction);
+void add_extended_register(uint32_t instruction);
+void mul(uint32_t instruction);
+void cbz(uint32_t instruction);
+void cbnz(uint32_t instruction);
 
-#endif // EXECUTE_H
+#endif
