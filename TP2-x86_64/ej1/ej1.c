@@ -1,15 +1,63 @@
 #include "ej1.h"
 
 string_proc_list* string_proc_list_create(void){
+	string_proc_list* list = (string_proc_list*)malloc(sizeof(string_proc_list));
+	if(!list) return NULL;
+	list->first = NULL;
+	list->last  = NULL;
+	return list;
 }
 
 string_proc_node* string_proc_node_create(uint8_t type, char* hash){
+	string_proc_node* node = (string_proc_node*)malloc(sizeof(string_proc_node));
+	if(!node) return NULL;
+	node->next      = NULL;
+	node->previous  = NULL;
+	node->hash      = hash;
+	node->type      = type;			
+	return node;
 }
 
 void string_proc_list_add_node(string_proc_list* list, uint8_t type, char* hash){
+	string_proc_node* node = string_proc_node_create(type, hash);
+	if(!node) return;
+	
+	if(!list->first){
+		list->first = node;
+		list->last  = node;
+		return;
+	}
+	
+	list->last->next = node;
+	node->previous   = list->last;
+	list->last      = node;
 }
 
+
 char* string_proc_list_concat(string_proc_list* list, uint8_t type , char* hash){
+	uint32_t length = 0;
+	string_proc_node* current_node  = list->first;
+
+	while(current_node){ // itereamos la lista para saber cuanta memoria pedir 
+		if(current_node->type == type){
+			length += strlen(current_node->hash);
+		}
+		current_node = current_node->next; 
+	} 
+	
+	char* new_hash = (char*)malloc(length + strlen(hash) + 1);
+	if(!new_hash) return NULL;
+	strcpy(new_hash, hash); 
+	
+	current_node = list->first;
+	while(current_node){
+		if(current_node->type == type){
+			strcat(new_hash, current_node->hash);
+		}
+		current_node = current_node->next;
+	}
+	
+	return new_hash;
 }
 
 
