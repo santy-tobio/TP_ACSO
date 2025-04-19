@@ -1,0 +1,166 @@
+1: /x $rdi = 0x4f91f0
+2: /d *(int*)$rdi = 36
+3: /x $rsi = 0x4
+0x000000000040217d in fun7 ()
+1: /x $rdi = 0x4f91f0
+2: /d *(int*)$rdi = 36
+3: /x $rsi = 0x4
+0x0000000000402180 in fun7 ()
+1: /x $rdi = 0x4f91f0
+2: /d *(int*)$rdi = 36
+3: /x $rsi = 0x4
+0x0000000000402182 in fun7 ()
+1: /x $rdi = 0x4f91f0
+2: /d *(int*)$rdi = 36
+3: /x $rsi = 0x4
+0x0000000000402186 in fun7 ()
+1: /x $rdi = 0x4f91f0
+2: /d *(int*)$rdi = 36
+3: /x $rsi = 0x4
+0x0000000000402188 in fun7 ()
+1: /x $rdi = 0x4f91f0
+2: /d *(int*)$rdi = 36
+3: /x $rsi = 0x4
+0x000000000040218a in fun7 ()
+1: /x $rdi = 0x4f91f0
+2: /d *(int*)$rdi = 36
+3: /x $rsi = 0x4
+0x0000000000402198 in fun7 ()
+1: /x $rdi = 0x4f91f0
+2: /d *(int*)$rdi = 36
+3: /x $rsi = 0x4
+0x000000000040219c in fun7 ()
+1: /x $rdi = 0x4f9210
+2: /d *(int*)$rdi = 8
+3: /x $rsi = 0x4
+
+Breakpoint 2, 0x0000000000402179 in fun7 ()
+1: /x $rdi = 0x4f9210
+2: /d *(int*)$rdi = 8
+3: /x $rsi = 0x4
+0x000000000040217d in fun7 ()
+1: /x $rdi = 0x4f9210
+2: /d *(int*)$rdi = 8
+3: /x $rsi = 0x4
+0x0000000000402180 in fun7 ()
+1: /x $rdi = 0x4f9210
+2: /d *(int*)$rdi = 8
+3: /x $rsi = 0x4
+0x0000000000402182 in fun7 ()
+1: /x $rdi = 0x4f9210
+2: /d *(int*)$rdi = 8
+3: /x $rsi = 0x4
+0x0000000000402186 in fun7 ()
+1: /x $rdi = 0x4f9210
+2: /d *(int*)$rdi = 8
+3: /x $rsi = 0x4
+0x0000000000402188 in fun7 ()
+1: /x $rdi = 0x4f9210
+2: /d *(int*)$rdi = 8
+3: /x $rsi = 0x4
+0x000000000040218a in fun7 ()
+1: /x $rdi = 0x4f9210
+2: /d *(int*)$rdi = 8
+3: /x $rsi = 0x4
+0x0000000000402198 in fun7 ()
+1: /x $rdi = 0x4f9210
+2: /d *(int*)$rdi = 8
+3: /x $rsi = 0x4
+0x000000000040219c in fun7 ()
+1: /x $rdi = 0x4f9290
+2: /d *(int*)$rdi = 6
+3: /x $rsi = 0x4
+
+Breakpoint 2, 0x0000000000402179 in fun7 ()
+1: /x $rdi = 0x4f9290
+2: /d *(int*)$rdi = 6
+3: /x $rsi = 0x4
+0x000000000040217d in fun7 ()
+1: /x $rdi = 0x4f9290
+2: /d *(int*)$rdi = 6
+3: /x $rsi = 0x4
+0x0000000000402180 in fun7 ()
+1: /x $rdi = 0x4f9290
+2: /d *(int*)$rdi = 6
+3: /x $rsi = 0x4
+0x0000000000402182 in fun7 ()
+1: /x $rdi = 0x4f9290
+2: /d *(int*)$rdi = 6
+3: /x $rsi = 0x4
+0x0000000000402186 in fun7 ()
+1: /x $rdi = 0x4f9290
+2: /d *(int*)$rdi = 6
+3: /x $rsi = 0x4
+0x0000000000402188 in fun7 ()
+1: /x $rdi = 0x4f9290
+2: /d *(int*)$rdi = 6
+3: /x $rsi = 0x4
+0x000000000040218a in fun7 ()
+1: /x $rdi = 0x4f9290
+2: /d *(int*)$rdi = 6
+3: /x $rsi = 0x4
+0x0000000000402198 in fun7 ()
+1: /x $rdi = 0x4f9290
+2: /d *(int*)$rdi = 6
+3: /x $rsi = 0x4
+0x000000000040219c in fun7 ()
+1: /x $rdi = 0x4f9110
+2: /d *(int*)$rdi = 1
+3: /x $rsi = 0x4
+
+Breakpoint 2, 0x0000000000402179 in fun7 ()
+1: /x $rdi = 0x4f9110
+2: /d *(int*)$rdi = 1
+3: /x $rsi = 0x4
+0x000000000040217d in fun7 ()
+1: /x $rdi = 0x4f9110
+2: /d *(int*)$rdi = 1
+3: /x $rsi = 0x4
+0x0000000000402180 in fun7 ()
+1: /x $rdi = 0x4f9110
+2: /d *(int*)$rdi = 1
+3: /x $rsi = 0x4
+0x0000000000402182 in fun7 ()
+1: /x $rdi = 0x4f9110
+2: /d *(int*)$rdi = 1
+3: /x $rsi = 0x4
+0x0000000000402186 in fun7 ()
+1: /x $rdi = 0x4f9110
+2: /d *(int*)$rdi = 1
+3: /x $rsi = 0x4
+0x0000000000402188 in fun7 ()
+1: /x $rdi = 0x4f9110
+2: /d *(int*)$rdi = 1
+3: /x $rsi = 0x4
+0x000000000040218a in fun7 ()
+1: /x $rdi = 0x4f9110
+2: /d *(int*)$rdi = 1
+3: /x $rsi = 0x4
+0x000000000040218c in fun7 ()
+1: /x $rdi = 0x4f9110
+2: /d *(int*)$rdi = 1
+3: /x $rsi = 0x4
+0x0000000000402191 in fun7 ()
+1: /x $rdi = 0x4f9110
+2: /d *(int*)$rdi = 1
+3: /x $rsi = 0x4
+0x00000000004021a5 in fun7 ()
+1: /x $rdi = 0x4f9110
+2: /d *(int*)$rdi = 1
+3: /x $rsi = 0x4
+0x00000000004021a9 in fun7 ()
+1: /x $rdi = 0x0
+2: /d *(int*)$rdi = <error: Cannot access memory at address 0x0>
+3: /x $rsi = 0x4
+
+Breakpoint 2, 0x0000000000402179 in fun7 ()
+1: /x $rdi = 0x0
+2: /d *(int*)$rdi = <error: Cannot access memory at address 0x0>
+3: /x $rsi = 0x4
+0x000000000040217d in fun7 ()
+1: /x $rdi = 0x0
+2: /d *(int*)$rdi = <error: Cannot access memory at address 0x0>
+3: /x $rsi = 0x4
+Warning: 'set logging off', an alias for the command 'set logging enabled', is deprecated.
+Use 'set logging enabled off'.
+

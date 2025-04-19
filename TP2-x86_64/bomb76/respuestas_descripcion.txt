@@ -1,0 +1,164 @@
+Fase 1:
+
+puse un breackpoint en la función de phase_1 , que comparaba
+el input del usuario con un string fijo, el input 
+por defecto esta en %rdi. El código calcula una 
+dirección de memoria (RIP + 0xc7c62) y la guarda en %rsi y llama a la función
+<strings_not_equal> para comparar nuestra entrada con la cadena, 
+si las cadenas son diferentes,  test   %eax,%eax , seguido de 
+jne (jump not equal) salta a la función <explode_bomb>.
+ 
+utilicé el comando "x/s 0x4c9a58" en GDB, que significa 
+"examinar como string" la memoria en esa dirección RIP + 0xc7c62 = 0x4c9a58
+
+y eso me devolvio :
+"Confia en el tiempo, que suele dar dulces salidas a muchas amargas dificultades"
+esa era la clave para desactivar la bomba   
+
+
+Fase 2:
+
+Puse un breakpoint en la función phase_2 y analicé el código desensamblado. 
+El programa esperaba dos números, la función convertía la entrada en dos números (usando strtoq) y los almacenaba en registros.
+Luego, en la dirección 0x401e7a hacía un test para verificar que el producto de los números no fuera cero.
+Más adelante, sumaba los números y comparaba el resultado con 0x2790 (10128 en decimal) con la instrucción "cmp $0x2790,%ebx".
+Si la suma no era exactamente 10128, saltaba a "explode_bomb" con "jne 0x401eac".
+La función misterio hacía un XOR entre los dos números (con "xor %edi,%esi") 
+y luego comprobaba si el resultado era negativo con "js (jump if sing) 0x401e21". Si el resultado no era negativo, la bomba explotaba.
+
+por lo tanto, necesitaba dos números que:
+
+1- sumaran exactamente 10128
+2- su producto no fuera cero
+3 -su XOR tuviera el bit más significativo en 1 (fuera negativo)
+
+la solución fue usar un número positivo grande y uno negativo: "20128 -10000"
+
+Fase 3:
+
+Puse un breakpoint en la función phase_3 y analicé el código desensamblado.
+Primero había que verificar que tipo de input esperaba el programa por lo que en 
+lea rsi,[rip+0xc502b] carga la dirección de una cadena de formato. 
+Usé x/s 0x4c7098 (calculando RIP + 0xc502b) en GDB y obtuve "%s %d", lo que indica que el programa nos pedia una cadena y un número entero.
+cmp eax,0x2 verifica que sscanf lea exactamente 2 valores. Si no, jne salta a explode_bomb.
+
+Luego el programa cargaba el archivo palabras.txt y lo guarda en un arreglo y almacena el número de palabras.
+Posteriormente se hace una llamada a Cuenta que es básicamente un binary seach de forma recursiva sobre el arreglo donde están cargadas las
+palabras 
+
+
+Funciona así: carga la palabra en el índice medio del arreglo ([r15+rax*8]) y la compara con la cadena del input usando strcmp. 
+Si %eax == 0 (cadenas iguales), la búsqueda termina. Si %eax < 0 (input menor), busca en la mitad izquierda; 
+si %eax > 0 (input mayor), busca en la mitad derecha. En cada iteración, se incrementa un contador, y si este supera 11,
+el programa salta a explode_bomb. Esto limita la búsqueda a un máximo de 11 pasos.
+
+Cuando Cuenta termina el programa verifica que:
+
+1) el contador ([rsp+0x14]) con el número del input ([rsp+0xc]). Si no son iguales, jne salta a explode_bomb.
+2) el contador con 6. Si es menor o igual (jle), salta a explode_bomb.
+    
+Por lo tanto, el input debe ser una palabra de palabras.txt y un número que coincida con
+los pasos que toma la búsqueda binaria para encontrarla, siendo este número mayor que 6 y menor o igual a 11.
+
+Para encontrar las palabras válidas, usé un script en Python que simula la búsqueda binaria
+para cada palabra en palabras.txt, calcula los pasos necesarios para encontrarla y guarda en un archivo 
+las palabras cuyos pasos están entre 7 y 11. Esto me dio una lista de inputs válidos, como "luir 7" o "muir 11", 
+
+Fase 4:
+
+Analizando el código de Assembly de la fase 4 , primero había que entender  que esperaba de input. 
+Lo primero que noté es que se llamaba a la función  string_length para contar los caracteres del input. 
+Luego, comparaba esa longitud con 6. Si no era exactamente 6, ¡boom!.
+
+El código inicializaba un contador en 0 y entraba en bucle para procesar los caracteres de la cadena. 
+Para cada uno, tomaba los 4 bits menos significativos (usando and edx, 0xf), 
+lo que me daba un valor entre 0 y 15. Ese valor se usaba como índice para buscar
+un número en un arreglo predefinido, y ese número se sumaba al contador
+
+después de procesar los 6 caracteres, el acumulador se comparaba con 59 
+(o 0x3b en hexadecimal). Si la suma no era exactamente 59 la bomba reventaba
+
+Por lo tanto la misión era encontrar una cadena de 6 caracteres cuyos 4 
+bits menos significativos, al mapearse a los valores del arreglo, sumen 
+exactamente 59.
+
+Entonces había que descifrar que valores tenía este array misterioso , 
+por lo que use x/16dw 0x4cde40 con un breackpoint en la phase_4 y obtuve 
+
+array[0] = 2
+array[1] = 13
+array[2] = 7
+array[3] = 14
+array[4] = 5
+array[5] = 10
+array[6] = 6
+array[7] = 15
+array[8] = 1
+array[9] = 12
+array[10] = 3
+array[11] = 4
+array[12] = 11
+array[13] = 8
+array[14] = 16
+array[15] = 9
+
+Cada carácter de mi cadena iba a contribuir con uno de estos valores a la suma, dependiendo de sus 4 bits menos significativos. 
+Por ejemplo, el carácter '5' (código ASCII 0x35) da 0x35 & 0xf = 5, así que usa array[5] = 10. 
+Habia que elegir 6 índices que sumaran 59. A ojo, empece a ver que combinaciones de esos número sumaban 59
+entonces hice 5*array[5] + 1*array[15] = 5*10 + 9 = 59
+
+Necesitaba caracteres que correspondieran a esos índices. Para el índice 5, opciones como '5' (0x35 & 0xf = 5), 'E' (0x45 & 0xf = 5),
+o 'u' (0x75 & 0xf = 5) funcionaban. Para el índice 15, podía usar 'O' (0x4F & 0xf = 15), '?' (0x3F & 0xf = 15), o 'o' (0x6F & 0xf = 15). 
+Decidí probar con "55555O"
+
+
+Con 16 valores y una suma específica, podría haber escrito un programa para buscar todas las combinaciones de 6
+índices que sumaran 59. Pero los valores del arreglo eran bastante manejables, y encontrar combinaciones como
+las de arriba fue rápido a mano. Decidí que no era necesario complicarme con código esta vez
+
+Fase Secreta:
+
+básicamente como mande el código de assembly_my_bomb.txt ví que había una fase secreta.
+En la función phase_defused encontré un test que verifica si ya se completaron las 4 fases (cmp DWORD PTR [rip+0xf8bb9],0x4). 
+Si es así, se ejecuta un código adicional que hace un sscanf sobre el buffer de la fase 3 con el formato "%s %d %s", lo que indica que esperaba un 
+tercer parámetro después de "luir 7". 
+
+Para averiguar qué palabra secreta se esperaba, usé x/s 0x4c714f en GDB y obtuve "abrete_sesamo". Modifiqué mi input de la fase 3 de "luir 7" 
+a "luir 7 abrete_sesamo", lo que activó la fase secreta al completar las 4 fases regulares.
+
+La fase secreta comienza leyendo un número con read_line() y convirtiéndolo a entero con __strtol(). Luego verifica que este número menos 1 sea menor o igual a 0x3e8 (1000 en decimal), es decir, que el número sea ≤ 1001.
+Llama a la función fun7 pasando como parámetros el número leído y un puntero a la estructura de un árbol binario (ubicado en 0x4f91f0 y etiquetado como n1). 
+Si fun7 retorna exactamente 2, la bomba se desactiva sino revienta.
+
+Analicé el código de fun7 y descubrí que es una función recursiva que recorre un árbol binario:
+
+Si el nodo es NULL, devuelve -1
+Si el valor del nodo es igual al input, devuelve 0
+Si el valor del nodo es mayor que el input, va al hijo izquierdo y multiplica el resultado por 2
+Si el valor del nodo es menor que el input, va al hijo derecho y hace (resultado × 2) + 1
+
+Para entender la estructura del árbol, examiné la memoria con x/40gx 0x4f91f0 y reconstruí el árbol:
+
+        36
+      /  \
+     8    50
+    / \   / \
+   6  22 45 107
+  / \
+ 1   ?
+
+ Para que fun7 devuelva 2, necesitaba encontrar un valor que siguiera un camino específico en el árbol. Probé varios valores y analicé los recorridos:
+Para el valor 22:
+
+36 > 22, va izquierda → resultado × 2
+8 < 22, va derecha → resultado × 2 + 1
+22 == 22, encontrado → resultado 0
+propagando para arriba: 0 × 2 + 1 = 1, luego 1 × 2 = 2
+
+También me dí cuenta (sufri por 5 horas) que si no tenía el archivo de inputs.txt un
+salto de linea al final , el 22 me lo truncaba como un 2 read_line()
+
+
+
+
+
