@@ -5,6 +5,9 @@
 #include "diskimg.h"
 #include "math.h"
 
+#define INODES_PER_SECTOR 16
+#define BLOCKS_PER_INDIRECT 256
+
 /**
  * TODO
  */
@@ -16,11 +19,11 @@ int inode_iget(struct unixfilesystem *fs, int inumber, struct inode *inp) {
     // para calcular el bloque esta mi iNode hago iNumber/16 
     // luego hago iNumber % 16 para saber qué numero de iNode del bloque es 
     // los iNodes están indexados desde 1 
-    int maxInodes = fs->superblock.s_isize * 16;
+    int maxInodes = fs->superblock.s_isize * INODES_PER_SECTOR;
     if (inumber < 1 || inumber > maxInodes) return -1;
     
-    int bloqNum = 2 + (inumber-1) / 16; 
-    int iNodeIndex = (inumber-1) % 16;
+    int bloqNum = 2 + (inumber-1) / INODES_PER_SECTOR; 
+    int iNodeIndex = (inumber-1) % INODES_PER_SECTOR; 
     
     char iNodeSectorData[DISKIMG_SECTOR_SIZE]; 
     if (diskimg_readsector(fs->dfd, bloqNum, iNodeSectorData) == -1) return -1;
@@ -42,19 +45,19 @@ int inode_indexlookup(struct unixfilesystem *fs, struct inode *inp,
     if (blockNum < 0 || blockNum >= totalBlocks) return -1;
     if (inp->i_mode & ILARG) { //como el archivo es grande hay que usar indirección
         
-        if (blockNum < 7*256) { // indirección simple (usando i_addr[0] a i_addr[6])
-            int blockAddr = blockNum / 256;
-            int blockIndex = blockNum % 256;
+        if (blockNum < 7* BLOCKS_PER_INDIRECT) { // indirección simple (usando i_addr[0] a i_addr[6])
+            int blockAddr = blockNum / BLOCKS_PER_INDIRECT;
+            int blockIndex = blockNum % BLOCKS_PER_INDIRECT;
             char iNodeSectorData[DISKIMG_SECTOR_SIZE]; 
             if (diskimg_readsector(fs->dfd, inp->i_addr[blockAddr], iNodeSectorData) == -1) return -1;
             uint16_t* indirectBlock = (uint16_t*) iNodeSectorData;  
             return indirectBlock[blockIndex];
         } 
         
-        else if (blockNum < 7*256 + 256*256) { //indirección doble
-            int relativeBlock = blockNum - 7*256;  // normalizo el bloque
-            int level1Index = relativeBlock / 256;  // puntero del bloque de nivel 1
-            int level2Index = relativeBlock % 256;  // puntero del bloque de nivel 2
+        else if (blockNum < 7*BLOCKS_PER_INDIRECT + BLOCKS_PER_INDIRECT*BLOCKS_PER_INDIRECT) { //indirección doble
+            int relativeBlock = blockNum - 7*BLOCKS_PER_INDIRECT;  // normalizo el bloque
+            int level1Index = relativeBlock / BLOCKS_PER_INDIRECT;  // puntero del bloque de nivel 1
+            int level2Index = relativeBlock % BLOCKS_PER_INDIRECT;  // puntero del bloque de nivel 2
             char iNodeSectorData[DISKIMG_SECTOR_SIZE];
             if (diskimg_readsector(fs->dfd, inp->i_addr[7], iNodeSectorData) == -1) return -1;
             uint16_t* indirectBlock = (uint16_t*) iNodeSectorData;
