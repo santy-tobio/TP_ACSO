@@ -32,7 +32,7 @@ La salida esperada de ejecutar *diskimageaccess* en cada imagen de disco X se al
 
 Esto genera un output en la salida estándar, ustedes la pueden redirigir a un archivo haciendo lo siguiente:
 
-     ./diskimageaccess -ip /samples/testdisks/basicDiskImage > output_basic.txt
+     ./diskimageaccess -ip ./samples/testdisks/basicDiskImage > output_basic.txt
 
 
 En el caso de que no puedan puedan ejecutar **diskimageaccess_soln_x8**. Pueden comparar su salida con la de la cátedra con los archivos que tienen extensión **.gold** que se encuentran en **/samples/testdisks**. La idea es que la salida de ejecutar el comando:
