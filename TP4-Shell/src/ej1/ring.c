@@ -52,21 +52,30 @@ void child_process(int pipes[][2], int n, int child_id) {
 
     int valor;
     read(pipes[child_id][READ_END], &valor, sizeof(valor)); 
+	close(pipes[child_id][READ_END]); 
     // esto funciona porque read bloquea hasta que hay datos disponibles
     valor++;
-    write(pipes[(child_id + 1) % n][WRITE_END], &valor, sizeof(valor)); 
+    write(pipes[(child_id + 1) % n][WRITE_END], &valor, sizeof(valor));
+	close(pipes[(child_id + 1) % n][WRITE_END]); 
     exit(0); 
 }
 
-void parent_process(int pipes[][2], int start, int *buffer) {
-    // no cerramos los pipes del proceso a los 
-    // hijos porque con el exit() se cierran automáticamente
+void parent_process(int pipes[][2], int n, int start, int *buffer) {
+    // cerramos todos los pipes que no usa el padre
+    for (int i = 0; i < n; i++) {
+        if (i != start) {
+            close(pipes[i][READ_END]);
+            close(pipes[i][WRITE_END]);
+        }
+    }
+    
     write(pipes[start][WRITE_END], buffer, sizeof(int));
-    close(pipes[start][WRITE_END]); // cerramos el pipe cuando escribe el padre
+    close(pipes[start][WRITE_END]); 
     wait(NULL); // sin el wait a cualquier hijo tenemos una race condition
     
     int resultado;
     read(pipes[start][READ_END], &resultado, sizeof(resultado));
+	close(pipes[start][READ_END]); 
     printf("Resultado final: %d\n", resultado);
 }
 
@@ -91,7 +100,7 @@ int main(int argc, char **argv) {
         }
     }
     
-    parent_process(pipes, start, buffer);
+	parent_process(pipes, n, start, buffer);  
     
     return 0;
 }
