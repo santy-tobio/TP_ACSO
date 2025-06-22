@@ -58,8 +58,9 @@ void ThreadPool::dispatcher() {
             workerId = availableWorkers.front();
             availableWorkers.pop();
             wts[workerId].thunk = task; 
-            wts[workerId].workReady.signal(); // thread safe
+            wts[workerId].workReady.signal(); // es thread safe pero a helgrind no le gusta si la saco del mutex
         }
+        
     }
 }
 
@@ -75,7 +76,7 @@ void ThreadPool::schedule(const function<void(void)>& thunk) {
     
     dispatcherSemaphore.signal(); //thread safe
 }
-
+    
 void ThreadPool::wait() {
     unique_lock<mutex> lock(queueLock);
     allTasksDone.wait(lock, [this]() {
@@ -86,12 +87,12 @@ void ThreadPool::wait() {
 ThreadPool::~ThreadPool() {
 
     wait(); 
-    done = true; // es atomica para 
+    done = true; // la convertí en atomica para no tener data races
 
     dispatcherSemaphore.signal();
     
     for (size_t i = 0; i < wts.size(); i++) {
-        wts[i].workReady.signal(); // para que terminen
+        wts[i].workReady.signal(); 
     }
 
     dt.join(); // esperamos al dispatcher

@@ -77,7 +77,6 @@ class ThreadPool {
     vector<worker_t> wts;                   // worker thread handles. you may want to change/remove this
     atomic<bool> done;                              // flag to indicate the pool is being destroyed
     mutex queueLock;                        // mutex to protect the queue of tasks
-    mutex waitingForWorker;               // mutex solo para sincronizar el dispatcher con los workers
     
     queue<function<void(void)>> taskQueue;      // cola de tareas
     queue<int> availableWorkers;                // cola de workers disponibles
