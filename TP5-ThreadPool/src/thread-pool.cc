@@ -28,10 +28,9 @@ void ThreadPool::worker(int id) {
             {
                 lock_guard<mutex> lock(queueLock);
                 availableWorkers.push(id);
+                allTasksDone.notify_all(); 
+                anyWorkerAvailable.notify_all();
             }
-
-            allTasksDone.notify_all(); 
-            anyWorkerAvailable.notify_all();
         }
     }
 }
@@ -46,7 +45,7 @@ void ThreadPool::dispatcher() {
         int workerId;
         
         {
-            unique_lock<mutex> lock(waitingForWorker);
+            unique_lock<mutex> lock(queueLock);
             anyWorkerAvailable.wait(lock, [this]() {
                 return !availableWorkers.empty();
             });
@@ -58,10 +57,9 @@ void ThreadPool::dispatcher() {
             taskQueue.pop();
             workerId = availableWorkers.front();
             availableWorkers.pop();
+            wts[workerId].thunk = task; 
+            wts[workerId].workReady.signal(); // thread safe
         }
-        
-        wts[workerId].thunk = task; 
-        wts[workerId].workReady.signal(); // thread safe
     }
 }
 
@@ -86,8 +84,10 @@ void ThreadPool::wait() {
 }
 
 ThreadPool::~ThreadPool() {
-    done = true;
-    
+
+    wait(); 
+    done = true; // es atomica para 
+
     dispatcherSemaphore.signal();
     
     for (size_t i = 0; i < wts.size(); i++) {
