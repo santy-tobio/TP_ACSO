@@ -5,13 +5,97 @@
  */
 
 #include "thread-pool.h"
+#include <stdexcept>
 using namespace std;
 
-ThreadPool::ThreadPool(size_t numThreads) : wts(numThreads), done(false) {}
+ThreadPool::ThreadPool(size_t numThreads) : wts(numThreads), done(false) {
 
+    for (size_t i = 0; i < numThreads; i++) {
+        wts[i].ts = thread(&ThreadPool::worker, this, i);
+        availableWorkers.push(i);  
+    }
 
-void ThreadPool::schedule(const function<void(void)>& thunk) {}
+    dt = thread(&ThreadPool::dispatcher, this);
+}
 
-void ThreadPool::wait() {}
+void ThreadPool::worker(int id) {
 
-ThreadPool::~ThreadPool() {}
+    while (!done) {
+        wts[id].workReady.wait();
+        if (!done && wts[id].thunk) {
+            wts[id].thunk();
+            
+            {
+                lock_guard<mutex> lock(queueLock);
+                availableWorkers.push(id);
+            }
+
+            allTasksDone.notify_all(); 
+            anyWorkerAvailable.notify_all();
+        }
+    }
+}
+
+void ThreadPool::dispatcher() {
+    while (!done) {
+        
+        dispatcherSemaphore.wait(); // esperamos la señal del schedule() , nos garantiza que haya tareas
+        if (done && taskQueue.empty()) break; 
+        
+        function<void(void)> task;
+        int workerId;
+        
+        {
+            unique_lock<mutex> lock(waitingForWorker);
+            anyWorkerAvailable.wait(lock, [this]() {
+                return !availableWorkers.empty();
+            });
+        }
+
+        {
+            lock_guard<mutex> lock(queueLock);
+            task = taskQueue.front();
+            taskQueue.pop();
+            workerId = availableWorkers.front();
+            availableWorkers.pop();
+        }
+        
+        wts[workerId].thunk = task; 
+        wts[workerId].workReady.signal(); // thread safe
+    }
+}
+
+void ThreadPool::schedule(const function<void(void)>& thunk) {
+    
+    if (!thunk) throw invalid_argument("Cannot schedule a null task");
+    if (done) throw runtime_error("Cannot schedule tasks on a destroyed ThreadPool");
+
+    {
+        lock_guard<mutex> lock(queueLock);
+        taskQueue.push(thunk);
+    }
+    
+    dispatcherSemaphore.signal(); //thread safe
+}
+
+void ThreadPool::wait() {
+    unique_lock<mutex> lock(queueLock);
+    allTasksDone.wait(lock, [this]() {
+        return taskQueue.empty() && availableWorkers.size() == wts.size();
+    });
+}
+
+ThreadPool::~ThreadPool() {
+    done = true;
+    
+    dispatcherSemaphore.signal();
+    
+    for (size_t i = 0; i < wts.size(); i++) {
+        wts[i].workReady.signal(); // para que terminen
+    }
+
+    dt.join(); // esperamos al dispatcher
+    for (size_t i = 0; i < wts.size(); i++) {
+        wts[i].ts.join(); // esperamos a los workers
+    }
+}
